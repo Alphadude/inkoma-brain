@@ -30,7 +30,6 @@ const validate =
     } else if (target === 'params') {
       req.params = value;
     }
-
     next();
   };
 

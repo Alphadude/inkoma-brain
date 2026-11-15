@@ -1,12 +1,14 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import User from '../models/user.model';
 import ApiError from '../utils/ApiError';
 import { RegisterInput, LoginInput, AuthResult } from '../interfaces/auth.interface';
 
-const signToken = (id: string): string =>
-  jwt.sign({ id }, process.env.JWT_SECRET as string, {
+const signToken = (id: string): string => {
+  const options: SignOptions = {
     expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any,
-  });
+  };
+  return jwt.sign({ id }, process.env.JWT_SECRET as string, options);
+};
 
 /**
  * Registers a new user account.
