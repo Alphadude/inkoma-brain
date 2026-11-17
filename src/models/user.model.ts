@@ -20,16 +20,40 @@ const userSchema = new mongoose.Schema<IUser>(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
     },
+    phone: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false, // Never returned in queries by default
     },
+    resetPasswordOtp: {
+      type: String,
+      select: false,
+    },
+    resetPasswordOtpExpires: {
+      type: Date,
+      select: false,
+    },
     role: {
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationOtp: {
+      type: String,
+      select: false,
+    },
+    emailVerificationOtpExpires: {
+      type: Date,
+      select: false,
     },
   },
   { timestamps: true }

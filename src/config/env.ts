@@ -37,6 +37,16 @@ interface EnvConfig {
     apiSecret: string;
     url?: string;
   };
+  brevo: {
+    smtpHost: string;
+    smtpPort: number;
+    smtpUser: string;
+    smtpKey: string;
+    senderEmail: string;
+    senderName: string;
+    apiKey: string;
+    smsSender: string;
+  };
 }
 
 const env: EnvConfig = {
@@ -55,6 +65,16 @@ const env: EnvConfig = {
     apiKey: process.env.CLOUDINARY_API_KEY as string,
     apiSecret: process.env.CLOUDINARY_API_SECRET as string,
     url: process.env.CLOUDINARY_URL,
+  },
+  brevo: {
+    smtpHost: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+    smtpPort: parseInt(process.env.BREVO_SMTP_PORT || '587', 10),
+    smtpUser: process.env.BREVO_SMTP_USER || '',
+    smtpKey: process.env.BREVO_SMTP_KEY || '',
+    senderEmail: process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_USER || '',
+    senderName: process.env.BREVO_SENDER_NAME || 'Inkoma',
+    apiKey: process.env.BREVO_API_KEY || '',
+    smsSender: process.env.BREVO_SMS_SENDER || 'Inkoma',
   },
 };
 
