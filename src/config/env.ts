@@ -9,6 +9,9 @@ const REQUIRED: string[] = [
   'JWT_SECRET',
   'JWT_EXPIRES_IN',
   'BCRYPT_ROUNDS',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
 ];
 
 const missing = REQUIRED.filter((key) => !process.env[key]);
@@ -28,6 +31,12 @@ interface EnvConfig {
   jwtExpiresIn: string;
   bcryptRounds: number;
   allowedOrigins: string[];
+  cloudinary: {
+    cloudName: string;
+    apiKey: string;
+    apiSecret: string;
+    url?: string;
+  };
 }
 
 const env: EnvConfig = {
@@ -41,6 +50,12 @@ const env: EnvConfig = {
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean),
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME as string,
+    apiKey: process.env.CLOUDINARY_API_KEY as string,
+    apiSecret: process.env.CLOUDINARY_API_SECRET as string,
+    url: process.env.CLOUDINARY_URL,
+  },
 };
 
 export default env;
