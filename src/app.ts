@@ -14,6 +14,9 @@ import logger from './utils/logger';
 
 const app: Application = express();
 
+// ── Trust Proxy (Required for Render, Heroku, Cloudflare, AWS) ────────────
+app.set('trust proxy', 1);
+
 // ── Security headers ───────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 
