@@ -1,5 +1,13 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import logger from '../utils/logger';
+
+// Use reliable public DNS resolvers to prevent Atlas SRV resolution failures
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {
+  // Ignore if unable to set custom DNS servers in environment
+}
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 5000;

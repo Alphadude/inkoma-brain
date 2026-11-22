@@ -30,6 +30,10 @@
     {
       "name": "Items",
       "description": "Item management endpoints (protected)"
+    },
+    {
+      "name": "Stories",
+      "description": "Inkoma Studio story and chapter management endpoints"
     }
   ],
   "paths": {
@@ -392,6 +396,116 @@
               }
             }
           }
+        }
+      }
+    },
+    "/stories": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "List stories (Feed & Discovery)",
+        "description": "Retrieves published stories with filtering by genre, language, status, author, or search query.",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 12 } },
+          { "name": "mainGenre", "in": "query", "schema": { "type": "string" } },
+          { "name": "storyLanguage", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["draft", "ongoing", "completed"] } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["newest", "popular", "readTime"] } }
+        ],
+        "responses": {
+          "200": { "description": "Stories list retrieved successfully" }
+        }
+      },
+      "post": {
+        "tags": ["Stories"],
+        "summary": "Create and publish a new story",
+        "description": "Creates a new story in Inkoma Studio with metadata and chapters.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "synopsis", "mainGenre"],
+                "properties": {
+                  "title": { "type": "string", "example": "Rain in the Metropolis" },
+                  "subtitle": { "type": "string", "example": "A neo-noir romantic mystery" },
+                  "synopsis": { "type": "string", "example": "Clara meets Julian under unexpected circumstances." },
+                  "mainGenre": { "type": "string", "example": "Romance" },
+                  "subGenres": { "type": "array", "items": { "type": "string" } },
+                  "storyLanguage": { "type": "string", "example": "English" },
+                  "targetAudience": { "type": "string", "example": "Young Adult (YA)" },
+                  "ageRating": { "type": "string", "example": "16+" },
+                  "tradition": { "type": "string", "example": "Pan-African" },
+                  "difficulty": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"], "default": "Intermediate" },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "status": { "type": "string", "enum": ["draft", "ongoing", "completed"], "default": "ongoing" },
+                  "chapters": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["title", "content"],
+                      "properties": {
+                        "title": { "type": "string", "example": "Chapter 1: The Encounter" },
+                        "summary": { "type": "string" },
+                        "content": { "type": "string", "example": "The rain beat steadily against the windowpane..." },
+                        "status": { "type": "string", "enum": ["draft", "published"], "default": "draft" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Story created successfully" },
+          "401": { "description": "Unauthorized" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/stories/{idOrSlug}": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get story by ID or Slug",
+        "description": "Retrieves story details, author information, and chapters. Automatically increments readsCount.",
+        "parameters": [
+          { "name": "idOrSlug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story retrieved successfully" },
+          "404": { "description": "Story not found" }
+        }
+      }
+    },
+    "/stories/{id}": {
+      "put": {
+        "tags": ["Stories"],
+        "summary": "Update story or chapters",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story updated successfully" },
+          "403": { "description": "Forbidden - Not story owner" },
+          "404": { "description": "Story not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Stories"],
+        "summary": "Delete story",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story deleted successfully" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Story not found" }
         }
       }
     },
