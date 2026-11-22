@@ -26,6 +26,28 @@ export interface INotificationSettings {
   communityAnnouncements: boolean;
 }
 
+export interface IReadingProgress {
+  story: Types.ObjectId;
+  storyTitle: string;
+  coverImage?: string;
+  authorPenName?: string;
+  lastChapterNumber: number;
+  progressPercentage: number;
+  lastReadNodeId?: string;
+  lastReadAt: Date;
+}
+
+export interface ISavedQuote {
+  _id?: Types.ObjectId;
+  story: Types.ObjectId;
+  storyTitle: string;
+  authorPenName?: string;
+  chapterNumber: number;
+  chapterTitle?: string;
+  quoteText: string;
+  savedAt: Date;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -45,6 +67,9 @@ export interface IUser extends Document {
   privacy: IPrivacySettings;
   notifications: INotificationSettings;
   bookmarks: Types.ObjectId[];
+  favorites: Types.ObjectId[];
+  readingProgress: IReadingProgress[];
+  savedQuotes: ISavedQuote[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -73,3 +98,18 @@ export interface ChangePasswordInput {
 export type UpdatePrivacyInput = Partial<IPrivacySettings>;
 
 export type UpdateNotificationsInput = Partial<INotificationSettings>;
+
+export interface UpdateProgressInput {
+  lastChapterNumber: number;
+  progressPercentage: number;
+  lastReadNodeId?: string;
+}
+
+export interface CreateQuoteInput {
+  storyId: string;
+  storyTitle?: string;
+  authorPenName?: string;
+  chapterNumber: number;
+  chapterTitle?: string;
+  quoteText: string;
+}

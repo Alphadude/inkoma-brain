@@ -5,6 +5,8 @@ import {
   IBankingDetails,
   IPrivacySettings,
   INotificationSettings,
+  IReadingProgress,
+  ISavedQuote,
 } from '../interfaces/user.interface';
 
 // ── Sub-schemas ───────────────────────────────────────────────────────────
@@ -87,6 +89,88 @@ const notificationSchema = new Schema<INotificationSettings>(
     },
   },
   { _id: false }
+);
+
+const readingProgressSchema = new Schema<IReadingProgress>(
+  {
+    story: {
+      type: Schema.Types.ObjectId,
+      ref: 'Story',
+      required: true,
+    },
+    storyTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    coverImage: {
+      type: String,
+      default: '',
+    },
+    authorPenName: {
+      type: String,
+      default: 'Storyteller',
+    },
+    lastChapterNumber: {
+      type: Number,
+      required: true,
+      default: 1,
+    },
+    progressPercentage: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 100,
+      default: 0,
+    },
+    lastReadNodeId: {
+      type: String,
+      trim: true,
+    },
+    lastReadAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: false }
+);
+
+const savedQuoteSchema = new Schema<ISavedQuote>(
+  {
+    story: {
+      type: Schema.Types.ObjectId,
+      ref: 'Story',
+      required: true,
+    },
+    storyTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    authorPenName: {
+      type: String,
+      default: 'Storyteller',
+    },
+    chapterNumber: {
+      type: Number,
+      required: true,
+    },
+    chapterTitle: {
+      type: String,
+      trim: true,
+    },
+    quoteText: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 2000,
+    },
+    savedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { timestamps: true }
 );
 
 // ── Main Schema ───────────────────────────────────────────────────────────
@@ -183,6 +267,14 @@ const userSchema = new Schema<IUser>(
         ref: 'Story',
       },
     ],
+    favorites: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Story',
+      },
+    ],
+    readingProgress: [readingProgressSchema],
+    savedQuotes: [savedQuoteSchema],
   },
   { timestamps: true }
 );

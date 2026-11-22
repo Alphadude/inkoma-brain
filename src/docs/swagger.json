@@ -1109,6 +1109,182 @@
           "401": { "description": "Unauthorized" }
         }
       }
+    },
+    "/users/favorites": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get favorited stories",
+        "description": "Returns all favorited stories for the authenticated user.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Favorites fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/favorites/{storyId}": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Add story to favorites",
+        "description": "Adds a story to the user's favorites collection and increments likesCount.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story added to favorites" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Remove story from favorites",
+        "description": "Removes a story from the user's favorites collection and decrements likesCount.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story removed from favorites" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/library": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get aggregate library overview",
+        "description": "Returns all 4 library tabs (recently read, bookmarks, favorites, saved quotes) and live item counts.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Library overview fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Clear entire library",
+        "description": "Removes all reading progress, bookmarks, favorites, and saved quotes for the user.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Library cleared successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/library/progress": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get reading progress list",
+        "description": "Returns list of stories in progress with last chapter and percentage completion.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Reading progress fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/library/progress/{storyId}": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Upsert reading progress",
+        "description": "Updates or sets the current chapter and progress percentage for a story.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["lastChapterNumber", "progressPercentage"],
+                "properties": {
+                  "lastChapterNumber": { "type": "integer", "example": 2 },
+                  "progressPercentage": { "type": "number", "example": 66 },
+                  "lastReadNodeId": { "type": "string", "example": "node-1" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Reading progress updated successfully" },
+          "401": { "description": "Unauthorized" },
+          "422": { "description": "Validation error" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Remove from reading progress",
+        "description": "Removes a story from the recently read list.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story removed from reading progress" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/quotes": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get saved quotes",
+        "description": "Returns all quotes saved by the user.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Saved quotes fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Save a new quote",
+        "description": "Saves a highlighted quote excerpt from a chapter.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["storyId", "storyTitle", "chapterNumber", "quoteText"],
+                "properties": {
+                  "storyId": { "type": "string" },
+                  "storyTitle": { "type": "string", "example": "Anansi and the Pot of Wisdom" },
+                  "authorPenName": { "type": "string", "example": "Anansi's Scribe" },
+                  "chapterNumber": { "type": "integer", "example": 2 },
+                  "chapterTitle": { "type": "string", "example": "The Great Gathering" },
+                  "quoteText": { "type": "string", "example": "Wisdom is like water; when spilled, no hand can gather every drop." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Quote saved successfully" },
+          "401": { "description": "Unauthorized" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/users/quotes/{quoteId}": {
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a saved quote",
+        "description": "Deletes a saved quote by ID.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "quoteId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Saved quote removed successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
     }
   },
   "components": {

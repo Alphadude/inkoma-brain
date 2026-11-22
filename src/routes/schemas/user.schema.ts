@@ -59,3 +59,18 @@ export const updateNotificationsSchema = Joi.object({
   patronTips: Joi.boolean().optional(),
   communityAnnouncements: Joi.boolean().optional(),
 }).min(1);
+
+export const updateProgressSchema = Joi.object({
+  lastChapterNumber: Joi.number().integer().min(1).required(),
+  progressPercentage: Joi.number().min(0).max(100).required(),
+  lastReadNodeId: Joi.string().trim().allow('').optional(),
+});
+
+export const createQuoteSchema = Joi.object({
+  storyId: Joi.string().required(),
+  storyTitle: Joi.string().trim().required(),
+  authorPenName: Joi.string().trim().allow('').optional(),
+  chapterNumber: Joi.number().integer().min(1).required(),
+  chapterTitle: Joi.string().trim().allow('').optional(),
+  quoteText: Joi.string().trim().min(1).max(2000).required(),
+});

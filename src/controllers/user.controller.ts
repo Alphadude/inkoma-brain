@@ -123,3 +123,106 @@ export const removeBookmark = asyncHandler(async (req: Request, res: Response): 
   await userService.removeBookmark(req.user!._id.toString(), req.params['storyId']!);
   res.status(200).json(new ApiResponse(200, null, 'Story unbookmarked successfully'));
 });
+
+/**
+ * GET /api/v1/users/library
+ * Aggregate personal library overview (Recently read, bookmarks, favorites, quotes, counts).
+ */
+export const getLibrary = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const library = await userService.getLibraryOverview(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, library, 'Library overview fetched successfully'));
+});
+
+/**
+ * DELETE /api/v1/users/library
+ * Clear all personal library data.
+ */
+export const clearLibrary = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.clearLibrary(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, null, 'Library cleared successfully'));
+});
+
+/**
+ * GET /api/v1/users/library/progress
+ * Get user reading progress / recently read list.
+ */
+export const getReadingProgress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const progress = await userService.getReadingProgress(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, { progress }, 'Reading progress fetched successfully'));
+});
+
+/**
+ * PUT /api/v1/users/library/progress/:storyId
+ * Upsert reading progress for a story.
+ */
+export const upsertReadingProgress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const progress = await userService.upsertReadingProgress(
+    req.user!._id.toString(),
+    req.params['storyId']!,
+    req.body
+  );
+  res.status(200).json(new ApiResponse(200, { progress }, 'Reading progress updated successfully'));
+});
+
+/**
+ * DELETE /api/v1/users/library/progress/:storyId
+ * Remove a story from reading history.
+ */
+export const removeReadingProgress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.removeReadingProgress(req.user!._id.toString(), req.params['storyId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Story removed from reading progress'));
+});
+
+/**
+ * GET /api/v1/users/favorites
+ * Get all favorited stories.
+ */
+export const getFavorites = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const favorites = await userService.getFavorites(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, { favorites }, 'Favorites fetched successfully'));
+});
+
+/**
+ * POST /api/v1/users/favorites/:storyId
+ * Add story to favorites.
+ */
+export const addFavorite = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.addFavorite(req.user!._id.toString(), req.params['storyId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Story added to favorites'));
+});
+
+/**
+ * DELETE /api/v1/users/favorites/:storyId
+ * Remove story from favorites.
+ */
+export const removeFavorite = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.removeFavorite(req.user!._id.toString(), req.params['storyId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Story removed from favorites'));
+});
+
+/**
+ * GET /api/v1/users/quotes
+ * Get all saved quotes.
+ */
+export const getQuotes = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const quotes = await userService.getQuotes(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, { quotes }, 'Saved quotes fetched successfully'));
+});
+
+/**
+ * POST /api/v1/users/quotes
+ * Save a new quote.
+ */
+export const addQuote = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const quote = await userService.addQuote(req.user!._id.toString(), req.body);
+  res.status(201).json(new ApiResponse(201, { quote }, 'Quote saved successfully'));
+});
+
+/**
+ * DELETE /api/v1/users/quotes/:quoteId
+ * Delete a saved quote.
+ */
+export const removeQuote = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.removeQuote(req.user!._id.toString(), req.params['quoteId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Saved quote removed successfully'));
+});

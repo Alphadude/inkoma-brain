@@ -9,6 +9,8 @@ import {
   changePasswordSchema,
   updatePrivacySchema,
   updateNotificationsSchema,
+  updateProgressSchema,
+  createQuoteSchema,
 } from './schemas/user.schema';
 
 const router = Router();
@@ -68,5 +70,42 @@ router.put(
 router.get('/bookmarks', userController.getBookmarks);
 router.post('/bookmarks/:storyId', userController.addBookmark);
 router.delete('/bookmarks/:storyId', userController.removeBookmark);
+
+/**
+ * @route   GET    /api/v1/users/favorites            — Get favorited stories (Protected)
+ * @route   POST   /api/v1/users/favorites/:storyId   — Add story to favorites (Protected)
+ * @route   DELETE /api/v1/users/favorites/:storyId   — Remove story from favorites (Protected)
+ */
+router.get('/favorites', userController.getFavorites);
+router.post('/favorites/:storyId', userController.addFavorite);
+router.delete('/favorites/:storyId', userController.removeFavorite);
+
+/**
+ * @route   GET    /api/v1/users/library              — Aggregate personal library overview (Protected)
+ * @route   DELETE /api/v1/users/library              — Clear all library data (Protected)
+ */
+router.route('/library').get(userController.getLibrary).delete(userController.clearLibrary);
+
+/**
+ * @route   GET    /api/v1/users/library/progress            — Get reading progress list (Protected)
+ * @route   PUT    /api/v1/users/library/progress/:storyId   — Upsert reading progress (Protected)
+ * @route   DELETE /api/v1/users/library/progress/:storyId   — Remove from reading progress (Protected)
+ */
+router.get('/library/progress', userController.getReadingProgress);
+router.put(
+  '/library/progress/:storyId',
+  validate(updateProgressSchema),
+  userController.upsertReadingProgress
+);
+router.delete('/library/progress/:storyId', userController.removeReadingProgress);
+
+/**
+ * @route   GET    /api/v1/users/quotes               — Get saved quotes (Protected)
+ * @route   POST   /api/v1/users/quotes               — Save a quote (Protected)
+ * @route   DELETE /api/v1/users/quotes/:quoteId      — Delete a saved quote (Protected)
+ */
+router.get('/quotes', userController.getQuotes);
+router.post('/quotes', validate(createQuoteSchema), userController.addQuote);
+router.delete('/quotes/:quoteId', userController.removeQuote);
 
 export default router;
