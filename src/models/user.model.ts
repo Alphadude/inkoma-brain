@@ -1,9 +1,96 @@
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser } from '../interfaces/user.interface';
+import {
+  IUser,
+  IBankingDetails,
+  IPrivacySettings,
+  INotificationSettings,
+} from '../interfaces/user.interface';
 
-// ── Schema ────────────────────────────────────────────────────────────────
-const userSchema = new mongoose.Schema<IUser>(
+// ── Sub-schemas ───────────────────────────────────────────────────────────
+const bankingSchema = new Schema<IBankingDetails>(
+  {
+    bankName: {
+      type: String,
+      trim: true,
+      required: [true, 'Bank name is required'],
+    },
+    accountNumber: {
+      type: String,
+      trim: true,
+      required: [true, 'Account number is required'],
+    },
+    accountHolderName: {
+      type: String,
+      trim: true,
+      required: [true, 'Account holder name is required'],
+    },
+  },
+  { _id: false }
+);
+
+const privacySchema = new Schema<IPrivacySettings>(
+  {
+    publicProfile: {
+      type: Boolean,
+      default: true,
+    },
+    publicReadingHistory: {
+      type: Boolean,
+      default: false,
+    },
+    allowFollowers: {
+      type: Boolean,
+      default: true,
+    },
+    showReadingActivity: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { _id: false }
+);
+
+const notificationSchema = new Schema<INotificationSettings>(
+  {
+    emailNewChapters: {
+      type: Boolean,
+      default: true,
+    },
+    emailComments: {
+      type: Boolean,
+      default: true,
+    },
+    emailPatronSupport: {
+      type: Boolean,
+      default: true,
+    },
+    weeklyFolkloreDigest: {
+      type: Boolean,
+      default: false,
+    },
+    newChapterAlerts: {
+      type: Boolean,
+      default: true,
+    },
+    commentReplies: {
+      type: Boolean,
+      default: true,
+    },
+    patronTips: {
+      type: Boolean,
+      default: true,
+    },
+    communityAnnouncements: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { _id: false }
+);
+
+// ── Main Schema ───────────────────────────────────────────────────────────
+const userSchema = new Schema<IUser>(
   {
     name: {
       type: String,
@@ -23,6 +110,29 @@ const userSchema = new mongoose.Schema<IUser>(
     phone: {
       type: String,
       trim: true,
+    },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      minlength: [3, 'Username must be at least 3 characters'],
+      maxlength: [30, 'Username cannot exceed 30 characters'],
+    },
+    avatarUrl: {
+      type: String,
+      trim: true,
+    },
+    penName: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Pen name cannot exceed 100 characters'],
+    },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
     },
     password: {
       type: String,
@@ -55,6 +165,18 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Date,
       select: false,
     },
+    banking: {
+      type: bankingSchema,
+      default: undefined,
+    },
+    privacy: {
+      type: privacySchema,
+      default: () => ({}),
+    },
+    notifications: {
+      type: notificationSchema,
+      default: () => ({}),
+    },
   },
   { timestamps: true }
 );
@@ -78,6 +200,10 @@ userSchema.methods.comparePassword = async function (
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.emailVerificationOtp;
+  delete obj.emailVerificationOtpExpires;
+  delete obj.resetPasswordOtp;
+  delete obj.resetPasswordOtpExpires;
   return obj;
 };
 
