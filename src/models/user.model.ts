@@ -177,6 +177,12 @@ const userSchema = new Schema<IUser>(
       type: notificationSchema,
       default: () => ({}),
     },
+    bookmarks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Story',
+      },
+    ],
   },
   { timestamps: true }
 );

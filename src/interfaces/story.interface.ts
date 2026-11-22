@@ -99,10 +99,21 @@ export interface StoryQueryParams {
   page?: number;
   limit?: number;
   mainGenre?: string;
+  genre?: string;
+  tradition?: string;
+  audio?: boolean;
+  hasAudio?: boolean;
   storyLanguage?: string;
-  status?: StoryStatus;
+  status?: StoryStatus | 'published';
   targetAudience?: string;
   author?: string;
   search?: string;
-  sortBy?: 'newest' | 'popular' | 'readTime';
+  sortBy?:
+    | 'trending'
+    | 'newest'
+    | 'most_read'
+    | 'most_liked'
+    | 'highest_rated'
+    | 'popular'
+    | 'readTime';
 }

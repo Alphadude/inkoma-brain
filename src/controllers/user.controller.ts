@@ -87,3 +87,39 @@ export const updateNotifications = asyncHandler(async (req: Request, res: Respon
     new ApiResponse(200, { user }, 'Notification preferences updated successfully')
   );
 });
+
+/**
+ * GET /api/v1/users/top-authors
+ * Get top authors of the week (Public).
+ */
+export const getTopAuthors = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const authors = await userService.getTopAuthors(10);
+  res.status(200).json(new ApiResponse(200, { authors }, 'Top authors fetched successfully'));
+});
+
+/**
+ * GET /api/v1/users/bookmarks
+ * Get current user bookmarked stories (Protected).
+ */
+export const getBookmarks = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const bookmarks = await userService.getBookmarks(req.user!._id.toString());
+  res.status(200).json(new ApiResponse(200, { bookmarks }, 'Bookmarks fetched successfully'));
+});
+
+/**
+ * POST /api/v1/users/bookmarks/:storyId
+ * Add a story to bookmarks (Protected).
+ */
+export const addBookmark = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.addBookmark(req.user!._id.toString(), req.params['storyId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Story bookmarked successfully'));
+});
+
+/**
+ * DELETE /api/v1/users/bookmarks/:storyId
+ * Remove a story from bookmarks (Protected).
+ */
+export const removeBookmark = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.removeBookmark(req.user!._id.toString(), req.params['storyId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Story unbookmarked successfully'));
+});

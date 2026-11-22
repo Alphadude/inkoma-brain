@@ -57,10 +57,16 @@ export const storyQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(12),
   mainGenre: Joi.string().trim().optional(),
+  genre: Joi.string().trim().optional(),
+  tradition: Joi.string().trim().optional(),
+  audio: Joi.boolean().optional(),
+  hasAudio: Joi.boolean().optional(),
   storyLanguage: Joi.string().trim().optional(),
-  status: Joi.string().valid('draft', 'ongoing', 'completed').optional(),
+  status: Joi.string().valid('draft', 'ongoing', 'completed', 'published').optional(),
   targetAudience: Joi.string().trim().optional(),
   author: Joi.string().trim().optional(),
   search: Joi.string().trim().allow('').optional(),
-  sortBy: Joi.string().valid('newest', 'popular', 'readTime').default('newest'),
+  sortBy: Joi.string()
+    .valid('trending', 'newest', 'most_read', 'most_liked', 'highest_rated', 'popular', 'readTime')
+    .default('trending'),
 });

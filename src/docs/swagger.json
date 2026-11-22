@@ -471,6 +471,36 @@
         }
       }
     },
+    "/stories/trending": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get trending stories",
+        "description": "Returns top 10 trending manuscripts ranked by reader engagement (reads and likes).",
+        "responses": {
+          "200": { "description": "Trending stories fetched successfully" }
+        }
+      }
+    },
+    "/stories/highest-rated": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get highest-rated stories",
+        "description": "Returns top 10 highest-rated stories of the week.",
+        "responses": {
+          "200": { "description": "Highest rated stories fetched successfully" }
+        }
+      }
+    },
+    "/stories/traditions": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get folklore traditions and manuscript counts",
+        "description": "Returns catalogue of folklore traditions with live story counts for the Explore carousel.",
+        "responses": {
+          "200": { "description": "Traditions fetched successfully" }
+        }
+      }
+    },
     "/stories/{idOrSlug}": {
       "get": {
         "tags": ["Stories"],
@@ -1026,6 +1056,57 @@
           "200": {
             "description": "Notification preferences updated successfully"
           }
+        }
+      }
+    },
+    "/users/top-authors": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get top authors of the week",
+        "description": "Returns top ranked authors aggregated by cumulative story reads and followers.",
+        "responses": {
+          "200": { "description": "Top authors fetched successfully" }
+        }
+      }
+    },
+    "/users/bookmarks": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user bookmarks",
+        "description": "Returns all bookmarked stories for the authenticated user.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Bookmarks fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/users/bookmarks/{storyId}": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Bookmark a story",
+        "description": "Adds a story to the user's bookmarks collection.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story bookmarked successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Story not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Remove a bookmark",
+        "description": "Removes a story from the user's bookmarks collection.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Story unbookmarked successfully" },
+          "401": { "description": "Unauthorized" }
         }
       }
     }

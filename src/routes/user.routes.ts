@@ -13,7 +13,12 @@ import {
 
 const router = Router();
 
-// All settings routes require authentication
+/**
+ * @route   GET  /api/v1/users/top-authors     — Get top authors of the week (Public)
+ */
+router.get('/top-authors', userController.getTopAuthors);
+
+// The following routes require authentication
 router.use(protect);
 
 /**
@@ -54,5 +59,14 @@ router.put(
   validate(updateNotificationsSchema),
   userController.updateNotifications
 );
+
+/**
+ * @route   GET    /api/v1/users/bookmarks            — Get bookmarked stories (Protected)
+ * @route   POST   /api/v1/users/bookmarks/:storyId   — Bookmark a story (Protected)
+ * @route   DELETE /api/v1/users/bookmarks/:storyId   — Remove a bookmark (Protected)
+ */
+router.get('/bookmarks', userController.getBookmarks);
+router.post('/bookmarks/:storyId', userController.addBookmark);
+router.delete('/bookmarks/:storyId', userController.removeBookmark);
 
 export default router;

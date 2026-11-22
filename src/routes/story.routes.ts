@@ -31,6 +31,15 @@ router.post(
 );
 
 /**
+ * @route   GET /api/v1/stories/trending       — Get top 10 trending stories (Public)
+ * @route   GET /api/v1/stories/highest-rated  — Get top 10 highest-rated stories (Public)
+ * @route   GET /api/v1/stories/traditions     — Get traditions catalogue with counts (Public)
+ */
+router.get('/trending', storyController.getTrendingStories);
+router.get('/highest-rated', storyController.getHighestRatedStories);
+router.get('/traditions', storyController.getTraditions);
+
+/**
  * @route   GET    /api/v1/stories/:idOrSlug — Get single story by ID or Slug (Public)
  * @route   PUT    /api/v1/stories/:id       — Update story (Protected: Author or Admin)
  * @route   DELETE /api/v1/stories/:id       — Delete story (Protected: Author or Admin)

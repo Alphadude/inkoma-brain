@@ -76,3 +76,30 @@ export const uploadCoverImage = asyncHandler(async (req: Request, res: Response)
     )
   );
 });
+
+/**
+ * GET /api/v1/stories/trending
+ * Get top 10 trending stories for explore carousel.
+ */
+export const getTrendingStories = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const stories = await storyService.getTrendingStories(10);
+  res.status(200).json(new ApiResponse(200, { stories }, 'Trending stories fetched successfully'));
+});
+
+/**
+ * GET /api/v1/stories/highest-rated
+ * Get top 10 highest-rated stories for explore section.
+ */
+export const getHighestRatedStories = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const stories = await storyService.getHighestRatedStories(10);
+  res.status(200).json(new ApiResponse(200, { stories }, 'Highest rated stories fetched successfully'));
+});
+
+/**
+ * GET /api/v1/stories/traditions
+ * Get folklore traditions metadata with dynamic manuscript counts.
+ */
+export const getTraditions = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const traditions = await storyService.getTraditionsWithCounts();
+  res.status(200).json(new ApiResponse(200, { traditions }, 'Traditions fetched successfully'));
+});

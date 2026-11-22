@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserRole = 'user' | 'admin';
 
@@ -44,6 +44,7 @@ export interface IUser extends Document {
   banking?: IBankingDetails;
   privacy: IPrivacySettings;
   notifications: INotificationSettings;
+  bookmarks: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
