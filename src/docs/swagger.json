@@ -38,6 +38,22 @@
     {
       "name": "Users",
       "description": "User profile, settings, security, and preferences endpoints"
+    },
+    {
+      "name": "Notifications",
+      "description": "User notifications, alerts, and unread counts"
+    },
+    {
+      "name": "Community",
+      "description": "Community Lore Agora discussion forum, topics, and replies"
+    },
+    {
+      "name": "Support",
+      "description": "Platform funding, patron support, and donation verification"
+    },
+    {
+      "name": "Help",
+      "description": "Help center FAQs and support inquiry tickets"
     }
   ],
   "paths": {
@@ -498,6 +514,97 @@
         "description": "Returns catalogue of folklore traditions with live story counts for the Explore carousel.",
         "responses": {
           "200": { "description": "Traditions fetched successfully" }
+        }
+      }
+    },
+    "/stories/feed/home": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get curated home landing feed",
+        "description": "Returns aggregated featured, recommended, new releases, recently updated stories, and top authors for the home landing page.",
+        "responses": {
+          "200": { "description": "Home feed fetched successfully" }
+        }
+      }
+    },
+    "/stories/{storyId}/comments": {
+      "get": {
+        "tags": ["Stories"],
+        "summary": "Get comments for a story",
+        "description": "Returns paginated comments (and threaded replies) for a story, optionally filtered by chapterNumber.",
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "chapterNumber", "in": "query", "required": false, "schema": { "type": "integer" } },
+          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "Comments fetched successfully" },
+          "404": { "description": "Story not found" }
+        }
+      },
+      "post": {
+        "tags": ["Stories"],
+        "summary": "Post a comment or reply",
+        "description": "Posts a comment on a story or chapter, or replies to a parent comment.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": { "type": "string", "example": "This plot twist honoring the Yoruba river goddess was magnificent!" },
+                  "chapterNumber": { "type": "integer", "example": 2 },
+                  "nodeId": { "type": "string" },
+                  "parentCommentId": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Comment created successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Story or parent comment not found" }
+        }
+      }
+    },
+    "/stories/comments/{commentId}/like": {
+      "post": {
+        "tags": ["Stories"],
+        "summary": "Toggle like on a comment",
+        "description": "Likes or unlikes a story comment.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Comment like updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Comment not found" }
+        }
+      }
+    },
+    "/stories/comments/{commentId}": {
+      "delete": {
+        "tags": ["Stories"],
+        "summary": "Delete comment",
+        "description": "Deletes own comment and decrements counts.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Comment deleted successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - Not comment author" },
+          "404": { "description": "Comment not found" }
         }
       }
     },
@@ -1391,6 +1498,301 @@
         ],
         "responses": {
           "200": { "description": "Follow status returned" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Get user notifications",
+        "description": "Retrieves paginated notifications and unreadCount for authenticated user.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "unreadOnly", "in": "query", "schema": { "type": "boolean", "default": false } }
+        ],
+        "responses": {
+          "200": { "description": "Notifications fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Notifications"],
+        "summary": "Clear all notifications",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "All notifications cleared" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/notifications/read-all": {
+      "patch": {
+        "tags": ["Notifications"],
+        "summary": "Mark all notifications as read",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "All notifications marked as read" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/notifications/{id}/read": {
+      "patch": {
+        "tags": ["Notifications"],
+        "summary": "Mark single notification as read",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Notification marked as read" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Notification not found" }
+        }
+      }
+    },
+    "/notifications/{id}": {
+      "delete": {
+        "tags": ["Notifications"],
+        "summary": "Delete a notification",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Notification deleted successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Notification not found" }
+        }
+      }
+    },
+    "/community/discussions": {
+      "get": {
+        "tags": ["Community"],
+        "summary": "List discussions in Lore Agora",
+        "description": "Returns paginated list of discussions with search, tradition filter, and sorting.",
+        "parameters": [
+          { "name": "tradition", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["recent", "popular"], "default": "recent" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "Discussions fetched successfully" }
+        }
+      },
+      "post": {
+        "tags": ["Community"],
+        "summary": "Create a new discussion thread",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "content"],
+                "properties": {
+                  "title": { "type": "string", "example": "The symbolism of the tortoise in Igbo & Yoruba folklore" },
+                  "content": { "type": "string", "example": "Why is the tortoise portrayed as a trickster figure across multiple West African nations?" },
+                  "tradition": { "type": "string", "example": "Yoruba" },
+                  "tags": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Discussion created successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/community/discussions/{id}": {
+      "get": {
+        "tags": ["Community"],
+        "summary": "Get discussion with replies",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Discussion fetched successfully" },
+          "404": { "description": "Discussion not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Community"],
+        "summary": "Delete discussion thread",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Discussion deleted successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - Not author" },
+          "404": { "description": "Discussion not found" }
+        }
+      }
+    },
+    "/community/discussions/{id}/replies": {
+      "post": {
+        "tags": ["Community"],
+        "summary": "Post a reply to a discussion",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": { "type": "string", "example": "In Ashanti folklore, Anansi the Spider plays an equivalent trickster role!" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Reply posted successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Discussion not found" }
+        }
+      }
+    },
+    "/community/discussions/{id}/like": {
+      "post": {
+        "tags": ["Community"],
+        "summary": "Toggle like on a discussion",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Discussion like updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Discussion not found" }
+        }
+      }
+    },
+    "/support/platform-info": {
+      "get": {
+        "tags": ["Support"],
+        "summary": "Get platform support info",
+        "description": "Returns verified bank accounts, crypto wallets, and patronage tiers.",
+        "responses": {
+          "200": { "description": "Platform info fetched successfully" }
+        }
+      }
+    },
+    "/support/donations/initialize": {
+      "post": {
+        "tags": ["Support"],
+        "summary": "Initialize a donation or support payment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount", "email"],
+                "properties": {
+                  "amount": { "type": "number", "example": 5000 },
+                  "email": { "type": "string", "example": "patron@example.com" },
+                  "currency": { "type": "string", "example": "NGN" },
+                  "targetType": { "type": "string", "enum": ["platform", "author"], "default": "platform" },
+                  "authorId": { "type": "string" },
+                  "paymentMethod": { "type": "string", "enum": ["paystack", "bank_transfer", "crypto"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Donation initialized successfully" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/support/donations/verify/{reference}": {
+      "post": {
+        "tags": ["Support"],
+        "summary": "Verify donation payment reference",
+        "parameters": [
+          { "name": "reference", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Donation verified successfully" },
+          "404": { "description": "Donation reference not found" }
+        }
+      }
+    },
+    "/support/donations/my": {
+      "get": {
+        "tags": ["Support"],
+        "summary": "Get user donation history",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User donations fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/help/faqs": {
+      "get": {
+        "tags": ["Help"],
+        "summary": "Get categorized FAQs",
+        "description": "Returns categorized FAQs across General, Storyteller, Billing, and Technical topics.",
+        "responses": {
+          "200": { "description": "FAQs fetched successfully" }
+        }
+      }
+    },
+    "/help/tickets": {
+      "post": {
+        "tags": ["Help"],
+        "summary": "Submit a support ticket",
+        "description": "Submits a support ticket or contact inquiry.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "subject", "message"],
+                "properties": {
+                  "name": { "type": "string", "example": "Kwame Mensah" },
+                  "email": { "type": "string", "example": "kwame@example.com" },
+                  "category": { "type": "string", "enum": ["General", "Storyteller Support", "Billing & Patronage", "Technical Bug", "Lore Preservation"] },
+                  "subject": { "type": "string", "example": "Question regarding chapter audio narration upload" },
+                  "message": { "type": "string", "example": "I would like to upload an MP3 audio narration for chapter 3 in Yoruba." },
+                  "priority": { "type": "string", "enum": ["low", "normal", "high"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Ticket submitted successfully" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/help/tickets/my": {
+      "get": {
+        "tags": ["Help"],
+        "summary": "Get user submitted tickets",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User tickets fetched successfully" },
           "401": { "description": "Unauthorized" }
         }
       }

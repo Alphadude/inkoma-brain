@@ -392,3 +392,69 @@ export const getTraditionsWithCounts = async (): Promise<any[]> => {
     };
   });
 };
+
+/**
+ * Retrieves aggregated feeds for the Home / Landing page.
+ */
+export const getHomeFeed = async (): Promise<{
+  featured: any[];
+  recommended: any[];
+  newReleases: any[];
+  recentlyUpdated: any[];
+  topAuthors: any[];
+}> => {
+  const publishedFilter = { status: { $in: ['ongoing', 'completed'] } };
+
+  const [featured, recommended, newReleases, recentlyUpdated, topAuthors] = await Promise.all([
+    Story.find(publishedFilter).sort({ readsCount: -1, likesCount: -1 }).limit(10).lean(),
+    Story.find(publishedFilter).sort({ likesCount: -1, readsCount: -1 }).limit(4).lean(),
+    Story.find(publishedFilter).sort({ createdAt: -1 }).limit(4).lean(),
+    Story.find(publishedFilter).sort({ updatedAt: -1 }).limit(4).lean(),
+    User.find()
+      .select('name username penName avatarUrl traditionSpecialty followers followersCount')
+      .sort({ followersCount: -1, createdAt: -1 })
+      .limit(4)
+      .lean(),
+  ]);
+
+  const formatStory = (s: any) => ({
+    id: s._id.toString(),
+    title: s.title,
+    subtitle: s.subtitle,
+    slug: s.slug,
+    synopsis: s.synopsis,
+    coverImage: s.coverImage,
+    tradition: s.tradition,
+    genre: s.mainGenre,
+    subGenres: s.subGenres,
+    authorName: s.authorName,
+    authorPenName: s.authorPenName || s.authorName,
+    authorAvatar: s.authorAvatar,
+    totalChapters: s.totalChapters || (s.chapters || []).length,
+    estimatedReadTime: s.estimatedReadTime || 5,
+    readsCount: s.readsCount || 0,
+    likesCount: s.likesCount || 0,
+    rating: s.likesCount > 0 ? Math.min(5.0, 4.0 + (s.likesCount / 100)) : 4.5,
+    status: s.status,
+    publishedAt: s.publishedAt || s.createdAt,
+    updatedAt: s.updatedAt,
+  });
+
+  const formatAuthor = (a: any) => ({
+    id: a._id.toString(),
+    username: a.username || a.name.toLowerCase().replace(/\s+/g, '_'),
+    displayName: a.name,
+    penName: a.penName || a.name,
+    avatarUrl: a.avatarUrl || '',
+    traditionSpecialty: a.traditionSpecialty || 'Pan-African Folklore',
+    followersCount: a.followersCount || (a.followers || []).length,
+  });
+
+  return {
+    featured: featured.map(formatStory),
+    recommended: recommended.map(formatStory),
+    newReleases: newReleases.map(formatStory),
+    recentlyUpdated: recentlyUpdated.map(formatStory),
+    topAuthors: topAuthors.map(formatAuthor),
+  };
+};

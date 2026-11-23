@@ -608,6 +608,25 @@ export const followUser = async (
       $inc: { followingCount: 1 },
     }),
   ]);
+
+  const follower = await User.findById(currentUserId).lean();
+  if (follower) {
+    try {
+      const { createNotification } = await import('./notification.service');
+      await createNotification({
+        recipient: targetUserId,
+        actor: currentUserId,
+        actorName: (follower as any).penName || (follower as any).name,
+        actorAvatar: (follower as any).avatarUrl,
+        type: 'follow',
+        title: 'New Storyteller Follower',
+        message: `${(follower as any).penName || (follower as any).name} started following your stories!`,
+        link: `/profile/${(follower as any).username || currentUserId}`,
+      });
+    } catch {
+      // Soft ignore notification error
+    }
+  }
 };
 
 /**

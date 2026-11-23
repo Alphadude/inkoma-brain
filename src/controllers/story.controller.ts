@@ -103,3 +103,12 @@ export const getTraditions = asyncHandler(async (_req: Request, res: Response): 
   const traditions = await storyService.getTraditionsWithCounts();
   res.status(200).json(new ApiResponse(200, { traditions }, 'Traditions fetched successfully'));
 });
+
+/**
+ * GET /api/v1/stories/feed/home
+ * Get curated home page landing feed.
+ */
+export const getHomeFeed = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const feed = await storyService.getHomeFeed();
+  res.status(200).json(new ApiResponse(200, feed, 'Home feed fetched successfully'));
+});

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as storyController from '../controllers/story.controller';
+import * as commentController from '../controllers/comment.controller';
 import { protect } from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
 import upload from '../middlewares/upload.middleware';
@@ -21,6 +22,17 @@ router
   .post(protect, validate(createStorySchema), storyController.createStory);
 
 /**
+ * @route   GET /api/v1/stories/feed/home      — Get curated home landing feed (Public)
+ * @route   GET /api/v1/stories/trending       — Get top 10 trending stories (Public)
+ * @route   GET /api/v1/stories/highest-rated  — Get top 10 highest-rated stories (Public)
+ * @route   GET /api/v1/stories/traditions     — Get traditions catalogue with counts (Public)
+ */
+router.get('/feed/home', storyController.getHomeFeed);
+router.get('/trending', storyController.getTrendingStories);
+router.get('/highest-rated', storyController.getHighestRatedStories);
+router.get('/traditions', storyController.getTraditions);
+
+/**
  * @route   POST /api/v1/stories/cover   — Upload cover image to Cloudinary (Protected)
  */
 router.post(
@@ -31,13 +43,16 @@ router.post(
 );
 
 /**
- * @route   GET /api/v1/stories/trending       — Get top 10 trending stories (Public)
- * @route   GET /api/v1/stories/highest-rated  — Get top 10 highest-rated stories (Public)
- * @route   GET /api/v1/stories/traditions     — Get traditions catalogue with counts (Public)
+ * Story Comments Endpoints
+ * @route   GET    /api/v1/stories/:storyId/comments       — Get comments for a story (Public)
+ * @route   POST   /api/v1/stories/:storyId/comments       — Post comment or reply (Protected)
+ * @route   POST   /api/v1/stories/comments/:commentId/like— Like/unlike comment (Protected)
+ * @route   DELETE /api/v1/stories/comments/:commentId     — Delete comment (Protected)
  */
-router.get('/trending', storyController.getTrendingStories);
-router.get('/highest-rated', storyController.getHighestRatedStories);
-router.get('/traditions', storyController.getTraditions);
+router.get('/:storyId/comments', commentController.getComments);
+router.post('/:storyId/comments', protect, commentController.createComment);
+router.post('/comments/:commentId/like', protect, commentController.likeComment);
+router.delete('/comments/:commentId', protect, commentController.deleteComment);
 
 /**
  * @route   GET    /api/v1/stories/:idOrSlug — Get single story by ID or Slug (Public)
