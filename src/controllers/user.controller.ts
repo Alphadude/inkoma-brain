@@ -284,3 +284,57 @@ export const getAuthorSupport = asyncHandler(async (req: Request, res: Response)
   const support = await userService.getAuthorSupport(req.params['userIdOrUsername']!);
   res.status(200).json(new ApiResponse(200, support, 'Support details fetched successfully'));
 });
+
+/**
+ * GET /api/v1/users/profile/:username/followers
+ * Public followers list for a storyteller.
+ */
+export const getFollowers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  let currentUserId: string | undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+      currentUserId = decoded?.id;
+    } catch {
+      // Soft ignore invalid/expired tokens for public endpoint
+    }
+  }
+
+  const { page, limit, search } = req.query;
+  const result = await userService.getFollowers(req.params['username']!, currentUserId, {
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+    search: search ? String(search) : undefined,
+  });
+
+  res.status(200).json(new ApiResponse(200, result, 'Followers fetched successfully'));
+});
+
+/**
+ * GET /api/v1/users/profile/:username/following
+ * Public following list for a storyteller.
+ */
+export const getFollowing = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  let currentUserId: string | undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+      currentUserId = decoded?.id;
+    } catch {
+      // Soft ignore invalid/expired tokens for public endpoint
+    }
+  }
+
+  const { page, limit, search } = req.query;
+  const result = await userService.getFollowing(req.params['username']!, currentUserId, {
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+    search: search ? String(search) : undefined,
+  });
+
+  res.status(200).json(new ApiResponse(200, result, 'Following fetched successfully'));
+});

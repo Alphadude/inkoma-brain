@@ -1300,6 +1300,40 @@
         }
       }
     },
+    "/users/profile/{username}/followers": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get storyteller followers",
+        "description": "Returns paginated list of users following this storyteller, with follower counts and viewer's follow status.",
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } },
+          { "name": "search", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Followers fetched successfully" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/users/profile/{username}/following": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get users followed by storyteller",
+        "description": "Returns paginated list of users that this storyteller is following, with follower counts and viewer's follow status.",
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } },
+          { "name": "search", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Following list fetched successfully" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
     "/users/support/{userIdOrUsername}": {
       "get": {
         "tags": ["Users"],

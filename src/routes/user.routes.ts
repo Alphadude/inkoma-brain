@@ -18,10 +18,16 @@ const router = Router();
 /**
  * @route   GET  /api/v1/users/top-authors             — Get top authors of the week (Public)
  * @route   GET  /api/v1/users/profile/:username       — Get public storyteller profile (Public)
+ * @route   GET  /api/v1/users/profile/:username/followers — Get user followers (Public)
+ * @route   GET  /api/v1/users/profile/:username/following — Get users followed (Public)
  * @route   GET  /api/v1/users/support/:userIdOrUsername — Get author support / tipping details (Public)
  */
 router.get('/top-authors', userController.getTopAuthors);
 router.get('/profile/:username', userController.getPublicProfile);
+router.get('/profile/:username/followers', userController.getFollowers);
+router.get('/profile/:username/following', userController.getFollowing);
+router.get('/:username/followers', userController.getFollowers);
+router.get('/:username/following', userController.getFollowing);
 router.get('/support/:userIdOrUsername', userController.getAuthorSupport);
 
 // The following routes require authentication

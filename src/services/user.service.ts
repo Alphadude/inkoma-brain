@@ -683,3 +683,173 @@ export const getAuthorSupport = async (usernameOrId: string): Promise<any> => {
     supportDetails,
   };
 };
+
+export interface NetworkQueryOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+/**
+ * Get followers list for a user / storyteller.
+ */
+export const getFollowers = async (
+  username: string,
+  currentUserId?: string,
+  options: NetworkQueryOptions = {}
+): Promise<{
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  users: any[];
+}> => {
+  const isObjectId = Types.ObjectId.isValid(username);
+  const targetUser = await User.findOne(
+    isObjectId
+      ? { $or: [{ _id: username }, { username: username.toLowerCase() }] }
+      : { username: username.toLowerCase() }
+  );
+
+  if (!targetUser) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const page = Math.max(1, Number(options.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(options.limit) || 20));
+  const skip = (page - 1) * limit;
+
+  const followerIds = targetUser.followers || [];
+  const filter: any = { _id: { $in: followerIds } };
+
+  if (options.search && options.search.trim()) {
+    const regex = new RegExp(options.search.trim(), 'i');
+    filter.$or = [
+      { name: regex },
+      { username: regex },
+      { penName: regex },
+      { traditionSpecialty: regex },
+    ];
+  }
+
+  const [total, users] = await Promise.all([
+    User.countDocuments(filter),
+    User.find(filter)
+      .select('name username penName avatarUrl country traditionSpecialty followers followersCount following')
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+  ]);
+
+  let viewerFollowingSet = new Set<string>();
+  if (currentUserId) {
+    const viewer = await User.findById(currentUserId).select('following').lean();
+    if (viewer && viewer.following) {
+      viewerFollowingSet = new Set(viewer.following.map((id: any) => id.toString()));
+    }
+  }
+
+  const formattedUsers = users.map((u: any) => ({
+    id: u._id.toString(),
+    username: u.username || u.name.toLowerCase().replace(/\s+/g, '_'),
+    displayName: u.name,
+    penName: u.penName || u.name,
+    avatarUrl: u.avatarUrl || '',
+    country: u.country || 'Pan-African',
+    specialty: u.traditionSpecialty || 'Pan-African Folklore',
+    traditionSpecialty: u.traditionSpecialty || 'Pan-African Folklore',
+    followersCount: u.followersCount || (u.followers || []).length,
+    followingCount: (u.following || []).length,
+    isFollowing: currentUserId ? viewerFollowingSet.has(u._id.toString()) : false,
+  }));
+
+  return {
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+    users: formattedUsers,
+  };
+};
+
+/**
+ * Get following list for a user / storyteller.
+ */
+export const getFollowing = async (
+  username: string,
+  currentUserId?: string,
+  options: NetworkQueryOptions = {}
+): Promise<{
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  users: any[];
+}> => {
+  const isObjectId = Types.ObjectId.isValid(username);
+  const targetUser = await User.findOne(
+    isObjectId
+      ? { $or: [{ _id: username }, { username: username.toLowerCase() }] }
+      : { username: username.toLowerCase() }
+  );
+
+  if (!targetUser) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const page = Math.max(1, Number(options.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(options.limit) || 20));
+  const skip = (page - 1) * limit;
+
+  const followingIds = targetUser.following || [];
+  const filter: any = { _id: { $in: followingIds } };
+
+  if (options.search && options.search.trim()) {
+    const regex = new RegExp(options.search.trim(), 'i');
+    filter.$or = [
+      { name: regex },
+      { username: regex },
+      { penName: regex },
+      { traditionSpecialty: regex },
+    ];
+  }
+
+  const [total, users] = await Promise.all([
+    User.countDocuments(filter),
+    User.find(filter)
+      .select('name username penName avatarUrl country traditionSpecialty followers followersCount following')
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+  ]);
+
+  let viewerFollowingSet = new Set<string>();
+  if (currentUserId) {
+    const viewer = await User.findById(currentUserId).select('following').lean();
+    if (viewer && viewer.following) {
+      viewerFollowingSet = new Set(viewer.following.map((id: any) => id.toString()));
+    }
+  }
+
+  const formattedUsers = users.map((u: any) => ({
+    id: u._id.toString(),
+    username: u.username || u.name.toLowerCase().replace(/\s+/g, '_'),
+    displayName: u.name,
+    penName: u.penName || u.name,
+    avatarUrl: u.avatarUrl || '',
+    country: u.country || 'Pan-African',
+    specialty: u.traditionSpecialty || 'Pan-African Folklore',
+    traditionSpecialty: u.traditionSpecialty || 'Pan-African Folklore',
+    followersCount: u.followersCount || (u.followers || []).length,
+    followingCount: (u.following || []).length,
+    isFollowing: currentUserId ? viewerFollowingSet.has(u._id.toString()) : false,
+  }));
+
+  return {
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+    users: formattedUsers,
+  };
+};
