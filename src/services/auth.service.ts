@@ -15,6 +15,11 @@ import {
 } from '../interfaces/auth.interface';
 import { sendEmail } from './email.service';
 import { sendSms } from './sms.service';
+import {
+  getRegistrationOtpEmail,
+  getResendOtpEmail,
+  getPasswordResetOtpEmail,
+} from '../utils/emailTemplates';
 
 const signToken = (id: string): string => {
   const options: SignOptions = {
@@ -46,24 +51,12 @@ export const register = async (data: RegisterInput): Promise<RegisterResult> => 
 
   // Dispatch confirmation email via Brevo
   try {
+    const { html, text } = getRegistrationOtpEmail(otp, user.name);
     await sendEmail({
       to: user.email,
-      subject: 'Confirm Your Email Address - Inkoma',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-          <h2 style="color: #111827; margin-bottom: 8px;">Welcome to Inkoma!</h2>
-          <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">
-            Thank you for creating an account. Please use the following 6-digit confirmation code to verify your email address:
-          </p>
-          <div style="background-color: #f3f4f6; border: 1px dashed #d1d5db; padding: 16px; margin: 24px 0; text-align: center; border-radius: 6px;">
-            <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #1d4ed8;">${otp}</span>
-          </div>
-          <p style="color: #6b7280; font-size: 13px; line-height: 1.4;">
-            This code will expire in <strong>10 minutes</strong>.
-          </p>
-        </div>
-      `,
-      text: `Welcome to Inkoma! Your email confirmation OTP is ${otp}. It expires in 10 minutes.`,
+      subject: 'Confirm Your Email Address — Inkoma',
+      html,
+      text,
     });
   } catch (error) {
     logger.error('Failed to send email verification OTP via Brevo:', error);
@@ -123,24 +116,12 @@ export const resendVerificationOtp = async (data: ResendOtpInput): Promise<{ mes
   user.emailVerificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save({ validateBeforeSave: false });
 
+  const { html, text } = getResendOtpEmail(otp, user.name);
   await sendEmail({
     to: user.email,
-    subject: 'Your New Email Confirmation Code - Inkoma',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-        <h2 style="color: #111827; margin-bottom: 8px;">Email Confirmation Code</h2>
-        <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">
-          Here is your new verification code to confirm your email address:
-        </p>
-        <div style="background-color: #f3f4f6; border: 1px dashed #d1d5db; padding: 16px; margin: 24px 0; text-align: center; border-radius: 6px;">
-          <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #1d4ed8;">${otp}</span>
-        </div>
-        <p style="color: #6b7280; font-size: 13px; line-height: 1.4;">
-          This code will expire in <strong>10 minutes</strong>.
-        </p>
-      </div>
-    `,
-    text: `Your new email confirmation OTP is ${otp}. It expires in 10 minutes.`,
+    subject: 'Your New Email Confirmation Code — Inkoma',
+    html,
+    text,
   });
 
   return {
@@ -217,24 +198,12 @@ export const forgotPassword = async (
   // 2. Send via Brevo Email (SMTP)
   if (user.email) {
     try {
+      const { html, text } = getPasswordResetOtpEmail(otp, user.name);
       await sendEmail({
         to: user.email,
-        subject: 'Password Reset OTP - Inkoma',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-            <h2 style="color: #111827; margin-bottom: 8px;">Reset Your Password</h2>
-            <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">
-              We received a request to reset your password. Use the following One-Time Password (OTP) to continue:
-            </p>
-            <div style="background-color: #f3f4f6; border: 1px dashed #d1d5db; padding: 16px; margin: 24px 0; text-align: center; border-radius: 6px;">
-              <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #1d4ed8;">${otp}</span>
-            </div>
-            <p style="color: #6b7280; font-size: 13px; line-height: 1.4;">
-              This code will expire in <strong>10 minutes</strong>. If you did not make this request, you can safely ignore this email.
-            </p>
-          </div>
-        `,
-        text: `Your Inkoma password reset OTP is ${otp}. It expires in 10 minutes.`,
+        subject: 'Password Reset Code — Inkoma',
+        html,
+        text,
       });
       sentViaEmail = true;
     } catch (emailError: any) {
