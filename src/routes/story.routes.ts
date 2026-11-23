@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as storyController from '../controllers/story.controller';
 import * as commentController from '../controllers/comment.controller';
-import { protect } from '../middlewares/auth.middleware';
+import { protect, optionalAuth } from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
 import upload from '../middlewares/upload.middleware';
 import {
@@ -9,6 +9,7 @@ import {
   updateStorySchema,
   storyQuerySchema,
 } from './schemas/story.schema';
+import { createCommentSchema } from './schemas/comment.schema';
 
 const router = Router();
 
@@ -49,8 +50,8 @@ router.post(
  * @route   POST   /api/v1/stories/comments/:commentId/like— Like/unlike comment (Protected)
  * @route   DELETE /api/v1/stories/comments/:commentId     — Delete comment (Protected)
  */
-router.get('/:storyId/comments', commentController.getComments);
-router.post('/:storyId/comments', protect, commentController.createComment);
+router.get('/:storyId/comments', optionalAuth, commentController.getComments);
+router.post('/:storyId/comments', protect, validate(createCommentSchema), commentController.createComment);
 router.post('/comments/:commentId/like', protect, commentController.likeComment);
 router.delete('/comments/:commentId', protect, commentController.deleteComment);
 

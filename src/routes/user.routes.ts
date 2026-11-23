@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as userController from '../controllers/user.controller';
-import { protect } from '../middlewares/auth.middleware';
+import { protect, optionalAuth } from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
 import upload from '../middlewares/upload.middleware';
 import {
@@ -23,11 +23,11 @@ const router = Router();
  * @route   GET  /api/v1/users/support/:userIdOrUsername — Get author support / tipping details (Public)
  */
 router.get('/top-authors', userController.getTopAuthors);
-router.get('/profile/:username', userController.getPublicProfile);
-router.get('/profile/:username/followers', userController.getFollowers);
-router.get('/profile/:username/following', userController.getFollowing);
-router.get('/:username/followers', userController.getFollowers);
-router.get('/:username/following', userController.getFollowing);
+router.get('/profile/:username', optionalAuth, userController.getPublicProfile);
+router.get('/profile/:username/followers', optionalAuth, userController.getFollowers);
+router.get('/profile/:username/following', optionalAuth, userController.getFollowing);
+router.get('/:username/followers', optionalAuth, userController.getFollowers);
+router.get('/:username/following', optionalAuth, userController.getFollowing);
 router.get('/support/:userIdOrUsername', userController.getAuthorSupport);
 
 // The following routes require authentication

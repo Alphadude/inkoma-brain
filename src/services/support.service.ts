@@ -148,6 +148,40 @@ export const verifyDonation = async (reference: string): Promise<any> => {
     throw new ApiError(404, 'Donation reference not found');
   }
 
+  // Idempotent: already verified
+  if (donation.status === 'success') {
+    return {
+      reference: donation.reference,
+      status: donation.status,
+      amount: donation.amount,
+      currency: donation.currency,
+      donorName: donation.donorName,
+      message: 'Donation has already been verified.',
+    };
+  }
+
+  // Verify against Paystack gateway if secret key is present
+  const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
+  if (paystackSecretKey) {
+    try {
+      const response = await fetch(
+        `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${paystackSecretKey}`,
+          },
+        }
+      );
+      const data: any = await response.json();
+      if (!data.status || data.data?.status !== 'success') {
+        throw new ApiError(400, 'Payment could not be verified by payment gateway');
+      }
+    } catch (err: any) {
+      if (err instanceof ApiError) throw err;
+      throw new ApiError(502, `Payment gateway communication error: ${err.message}`);
+    }
+  }
+
   donation.status = 'success';
   await donation.save();
 

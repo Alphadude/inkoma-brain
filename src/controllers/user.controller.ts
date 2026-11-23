@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import * as userService from '../services/user.service';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
@@ -233,18 +232,7 @@ export const removeQuote = asyncHandler(async (req: Request, res: Response): Pro
  * Public storyteller profile lookup.
  */
 export const getPublicProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore invalid/expired tokens for public profile
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const profile = await userService.getPublicProfile(req.params['username']!, currentUserId);
   res.status(200).json(new ApiResponse(200, { user: profile }, 'Profile fetched successfully'));
 });
@@ -290,18 +278,7 @@ export const getAuthorSupport = asyncHandler(async (req: Request, res: Response)
  * Public followers list for a storyteller.
  */
 export const getFollowers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore invalid/expired tokens for public endpoint
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const { page, limit, search } = req.query;
   const result = await userService.getFollowers(req.params['username']!, currentUserId, {
     page: page ? Number(page) : undefined,
@@ -317,18 +294,7 @@ export const getFollowers = asyncHandler(async (req: Request, res: Response): Pr
  * Public following list for a storyteller.
  */
 export const getFollowing = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore invalid/expired tokens for public endpoint
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const { page, limit, search } = req.query;
   const result = await userService.getFollowing(req.params['username']!, currentUserId, {
     page: page ? Number(page) : undefined,

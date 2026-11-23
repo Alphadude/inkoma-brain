@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
 import * as discussionService from '../services/discussion.service';
@@ -9,18 +8,7 @@ import * as discussionService from '../services/discussion.service';
  * List discussions with filters (Public with optional Auth).
  */
 export const getDiscussions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const { tradition, search, sortBy, page, limit } = req.query;
   const result = await discussionService.getDiscussions(
     {
@@ -41,18 +29,7 @@ export const getDiscussions = asyncHandler(async (req: Request, res: Response): 
  * Get single discussion thread with replies (Public with optional Auth).
  */
 export const getDiscussionById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const discussion = await discussionService.getDiscussionById(req.params['id']!, currentUserId);
   res.status(200).json(new ApiResponse(200, { discussion }, 'Discussion fetched successfully'));
 });

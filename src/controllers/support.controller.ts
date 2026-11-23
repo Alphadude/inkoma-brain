@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
 import * as supportService from '../services/support.service';
@@ -18,18 +17,7 @@ export const getPlatformInfo = asyncHandler(async (_req: Request, res: Response)
  * Initializes a donation with Paystack (Public or Protected).
  */
 export const initializeDonation = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let userId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      userId = decoded?.id;
-    } catch {
-      // Soft ignore
-    }
-  }
-
+  const userId = req.user?._id?.toString();
   const result = await supportService.initializeDonation(userId, req.body);
   res.status(201).json(new ApiResponse(201, result, 'Donation initialized successfully'));
 });

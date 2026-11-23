@@ -39,6 +39,32 @@ export const protect = asyncHandler(
 );
 
 /**
+ * Optional authentication: extracts user if valid Bearer token provided,
+ * but allows unauthenticated requests to pass through cleanly.
+ */
+export const optionalAuth = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    if (decoded && decoded.id) {
+      req.user = { _id: decoded.id } as any;
+    }
+  } catch {
+    // Soft ignore expired or invalid tokens on optional auth endpoints
+  }
+  next();
+};
+
+/**
  * Role-based access control factory.
  * Usage: restrictTo('admin')
  */

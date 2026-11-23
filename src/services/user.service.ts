@@ -199,28 +199,34 @@ export const addBookmark = async (userId: string, storyId: string): Promise<void
     throw new ApiError(404, 'Story not found');
   }
 
-  await Promise.all([
-    User.findByIdAndUpdate(userId, {
-      $addToSet: { bookmarks: story._id },
-    }),
-    Story.findByIdAndUpdate(storyId, {
+  const storyObjectId = new Types.ObjectId(storyId);
+  const userUpdated = await User.findOneAndUpdate(
+    { _id: userId, bookmarks: { $ne: storyObjectId } },
+    { $addToSet: { bookmarks: storyObjectId } }
+  );
+
+  if (userUpdated) {
+    await Story.findByIdAndUpdate(storyId, {
       $inc: { bookmarksCount: 1 },
-    }),
-  ]);
+    });
+  }
 };
 
 /**
  * Removes a story from the user's bookmarks.
  */
 export const removeBookmark = async (userId: string, storyId: string): Promise<void> => {
-  await Promise.all([
-    User.findByIdAndUpdate(userId, {
-      $pull: { bookmarks: storyId },
-    }),
-    Story.findByIdAndUpdate(storyId, {
+  const storyObjectId = new Types.ObjectId(storyId);
+  const userUpdated = await User.findOneAndUpdate(
+    { _id: userId, bookmarks: storyObjectId },
+    { $pull: { bookmarks: storyObjectId } }
+  );
+
+  if (userUpdated) {
+    await Story.findByIdAndUpdate(storyId, {
       $inc: { bookmarksCount: -1 },
-    }),
-  ]);
+    });
+  }
 };
 
 /**
@@ -370,28 +376,34 @@ export const addFavorite = async (userId: string, storyId: string): Promise<void
   const story = await Story.findById(storyId);
   if (!story) throw new ApiError(404, 'Story not found');
 
-  await Promise.all([
-    User.findByIdAndUpdate(userId, {
-      $addToSet: { favorites: story._id },
-    }),
-    Story.findByIdAndUpdate(storyId, {
+  const storyObjectId = new Types.ObjectId(storyId);
+  const userUpdated = await User.findOneAndUpdate(
+    { _id: userId, favorites: { $ne: storyObjectId } },
+    { $addToSet: { favorites: storyObjectId } }
+  );
+
+  if (userUpdated) {
+    await Story.findByIdAndUpdate(storyId, {
       $inc: { likesCount: 1 },
-    }),
-  ]);
+    });
+  }
 };
 
 /**
  * Removes a story from favorites.
  */
 export const removeFavorite = async (userId: string, storyId: string): Promise<void> => {
-  await Promise.all([
-    User.findByIdAndUpdate(userId, {
-      $pull: { favorites: storyId },
-    }),
-    Story.findByIdAndUpdate(storyId, {
+  const storyObjectId = new Types.ObjectId(storyId);
+  const userUpdated = await User.findOneAndUpdate(
+    { _id: userId, favorites: storyObjectId },
+    { $pull: { favorites: storyObjectId } }
+  );
+
+  if (userUpdated) {
+    await Story.findByIdAndUpdate(storyId, {
       $inc: { likesCount: -1 },
-    }),
-  ]);
+    });
+  }
 };
 
 /**
@@ -591,23 +603,28 @@ export const followUser = async (
     throw new ApiError(403, 'This storyteller is not accepting new followers');
   }
 
-  const alreadyFollowing = (target.followers || []).some(
-    (f) => f.toString() === currentUserId
+  const currentUserObjectId = new Types.ObjectId(currentUserId);
+  const targetUserObjectId = new Types.ObjectId(targetUserId);
+
+  // Atomically update target user ONLY if not already in followers
+  const targetUpdated = await User.findOneAndUpdate(
+    { _id: targetUserObjectId, followers: { $ne: currentUserObjectId } },
+    {
+      $addToSet: { followers: currentUserObjectId },
+      $inc: { followersCount: 1 },
+    },
+    { new: true }
   );
-  if (alreadyFollowing) {
+
+  // If already was following, targetUpdated will be null -> idempotent no-op
+  if (!targetUpdated) {
     return;
   }
 
-  await Promise.all([
-    User.findByIdAndUpdate(targetUserId, {
-      $addToSet: { followers: currentUserId },
-      $inc: { followersCount: 1 },
-    }),
-    User.findByIdAndUpdate(currentUserId, {
-      $addToSet: { following: targetUserId },
-      $inc: { followingCount: 1 },
-    }),
-  ]);
+  await User.findByIdAndUpdate(currentUserId, {
+    $addToSet: { following: targetUserObjectId },
+    $inc: { followingCount: 1 },
+  });
 
   const follower = await User.findById(currentUserId).lean();
   if (follower) {
@@ -641,16 +658,28 @@ export const unfollowUser = async (
     throw new ApiError(404, 'User not found');
   }
 
-  await Promise.all([
-    User.findByIdAndUpdate(targetUserId, {
-      $pull: { followers: currentUserId },
+  const currentUserObjectId = new Types.ObjectId(currentUserId);
+  const targetUserObjectId = new Types.ObjectId(targetUserId);
+
+  // Atomically update target user ONLY if currently in followers
+  const targetUpdated = await User.findOneAndUpdate(
+    { _id: targetUserObjectId, followers: currentUserObjectId },
+    {
+      $pull: { followers: currentUserObjectId },
       $inc: { followersCount: -1 },
-    }),
-    User.findByIdAndUpdate(currentUserId, {
-      $pull: { following: targetUserId },
-      $inc: { followingCount: -1 },
-    }),
-  ]);
+    },
+    { new: true }
+  );
+
+  // If was not following, targetUpdated will be null -> idempotent no-op
+  if (!targetUpdated) {
+    return;
+  }
+
+  await User.findByIdAndUpdate(currentUserId, {
+    $pull: { following: targetUserObjectId },
+    $inc: { followingCount: -1 },
+  });
 };
 
 /**

@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
 import * as commentService from '../services/comment.service';
@@ -9,18 +8,7 @@ import * as commentService from '../services/comment.service';
  * Fetch comments for a story (or specific chapter).
  */
 export const getComments = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  let currentUserId: string | undefined;
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      currentUserId = decoded?.id;
-    } catch {
-      // Soft ignore
-    }
-  }
-
+  const currentUserId = req.user?._id?.toString();
   const { chapterNumber, page, limit } = req.query;
   const result = await commentService.getComments(
     req.params['storyId']!,
