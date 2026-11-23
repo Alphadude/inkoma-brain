@@ -3,6 +3,10 @@
  * Designed in Inkoma's signature Gold & White theme.
  */
 
+export const INKOMA_LOGO_URL =
+  process.env.INKOMA_LOGO_URL ||
+  'https://res.cloudinary.com/pgphtobi/image/upload/v1795440698/inkoma_brand/inkoma-logo.png';
+
 interface BaseTemplateOptions {
   preheader: string;
   badgeText: string;
@@ -64,17 +68,16 @@ function renderEmailLayout(options: BaseTemplateOptions): string {
         <!-- Main Card Container -->
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 560px;" class="email-container">
           
-          <!-- Top Brand Header -->
+          <!-- Top Brand Header with Logo -->
           <tr>
             <td align="center" style="padding-bottom: 24px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <!-- Brand Wordmark with Gold Accent -->
-                    <div style="font-size: 26px; font-weight: 800; letter-spacing: 4px; color: #1C1917; text-transform: uppercase;">
-                      I<span style="color: #C5A059;">N</span>KOMA
-                    </div>
-                    <div style="font-size: 10px; font-weight: 600; letter-spacing: 2.5px; color: #9E7D3B; text-transform: uppercase; margin-top: 4px;">
+                    <a href="https://inkoma.netlify.app" target="_blank" style="text-decoration: none; display: inline-block;">
+                      <img src="${INKOMA_LOGO_URL}" alt="Inkoma" width="140" style="display: block; width: 140px; max-width: 100%; height: auto; margin: 0 auto; border: 0;" />
+                    </a>
+                    <div style="font-size: 10px; font-weight: 600; letter-spacing: 2.5px; color: #9E7D3B; text-transform: uppercase; margin-top: 8px;">
                       Oral Literature &amp; Folklore Sanctuary
                     </div>
                   </td>
