@@ -101,6 +101,8 @@ export interface StoryQueryParams {
   mainGenre?: string;
   genre?: string;
   tradition?: string;
+  tags?: string | string[];
+  tag?: string;
   audio?: boolean;
   hasAudio?: boolean;
   storyLanguage?: string;

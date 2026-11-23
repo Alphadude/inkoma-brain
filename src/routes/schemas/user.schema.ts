@@ -16,6 +16,8 @@ export const updateProfileSchema = Joi.object({
   bio: Joi.string().trim().max(500).allow('').optional(),
   phone: Joi.string().trim().allow('').optional(),
   avatarUrl: Joi.string().uri().allow('').optional(),
+  traditionSpecialty: Joi.string().trim().max(100).allow('').optional(),
+  preferredCategories: Joi.array().items(Joi.string().trim()).optional(),
 }).min(1);
 
 export const updateBankingSchema = Joi.object({

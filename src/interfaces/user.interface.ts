@@ -75,6 +75,7 @@ export interface IUser extends Document {
   bio?: string;
   country?: string;
   traditionSpecialty?: string;
+  preferredCategories: string[];
   password: string;
   role: UserRole;
   isEmailVerified: boolean;
@@ -107,6 +108,8 @@ export interface UpdateProfileInput {
   bio?: string;
   phone?: string;
   avatarUrl?: string;
+  traditionSpecialty?: string;
+  preferredCategories?: string[];
 }
 
 export interface UpdateBankingInput {

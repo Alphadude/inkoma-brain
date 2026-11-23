@@ -253,6 +253,11 @@ const userSchema = new Schema<IUser>(
       trim: true,
       default: 'Pan-African Folklore',
     },
+    preferredCategories: {
+      type: [String],
+      default: ['Folklore & Mythology'],
+      index: true,
+    },
     followers: [
       {
         type: Schema.Types.ObjectId,

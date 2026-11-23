@@ -107,10 +107,11 @@ export const getTraditions = asyncHandler(async (_req: Request, res: Response): 
 
 /**
  * GET /api/v1/stories/feed/home
- * Get curated home page landing feed.
+ * Get curated home page landing feed with personalized categories for authenticated users.
  */
-export const getHomeFeed = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
-  const feed = await storyService.getHomeFeed();
+export const getHomeFeed = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?._id?.toString();
+  const feed = await storyService.getHomeFeed(userId);
   res.status(200).json(new ApiResponse(200, feed, 'Home feed fetched successfully'));
 });
 
@@ -153,12 +154,24 @@ export const importPdfManuscript = asyncHandler(async (req: Request, res: Respon
     ? req.body.subGenres.split(',').map((s: string) => s.trim()).filter(Boolean)
     : [];
 
+  const initialTags = Array.isArray(req.body.tags)
+    ? req.body.tags
+    : typeof req.body.tags === 'string'
+    ? req.body.tags.split(',').map((s: string) => s.trim()).filter(Boolean)
+    : [];
+  initialTags.push('New Release');
+
   const storyPayload: any = {
     title: req.body.title || parsed.detectedTitle || 'Untitled Story',
     synopsis: req.body.synopsis || parsed.chapters[0]?.summary || 'Imported manuscript from PDF',
-    mainGenre: req.body.mainGenre || 'Folklore & Mythology',
+    mainGenre:
+      req.body.mainGenre ||
+      req.user?.preferredCategories?.[0] ||
+      req.user?.traditionSpecialty ||
+      'Folklore & Mythology',
     subGenres,
-    tradition: req.body.tradition || 'Pan-African',
+    tradition: req.body.tradition || req.user?.traditionSpecialty || 'Pan-African',
+    tags: Array.from(new Set(initialTags)),
     targetAudience: req.body.targetAudience || 'All Ages',
     ageRating: req.body.ageRating || 'Everybody',
     difficulty: req.body.difficulty || 'Intermediate',

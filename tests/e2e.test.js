@@ -71,7 +71,7 @@ async function runTestSuite() {
   const authorEmail = `test_griot_${timestamp}@inkoma.test`;
   const readerEmail = `test_seeker_${timestamp}@inkoma.test`;
 
-  let authorUser, readerUser, testStory, importedStoryId;
+  let authorUser, readerUser, testStory, importedStoryId, autoTaggedStory;
 
   try {
     authorUser = await User.create({
@@ -89,6 +89,7 @@ async function runTestSuite() {
       username: `reader_${timestamp}`,
       password: 'Password123!',
       penName: 'Curious Seeker',
+      preferredCategories: ['Afrofuturism'],
     });
 
     const authorToken = jwt.sign({ id: authorUser._id.toString(), role: 'user' }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -217,7 +218,47 @@ async function runTestSuite() {
       throw new Error(`Import PDF expected 2 chapters in story, got ${importJson.data.story?.chapters?.length}`);
     }
     importedStoryId = importJson.data.story._id;
-    console.log(' [7/7] PDF Manuscript Parsing & Draft Story Import verified.');
+    console.log(' [7/8] PDF Manuscript Parsing & Draft Story Import verified.');
+
+    // 8. Story Automated Tagging, Explore Tag Filters & Home Category Personalization
+    const resCreateStory = await fetch(`${baseUrl}/stories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authorToken}` },
+      body: JSON.stringify({
+        title: `The Cybernetic Orisha ${timestamp}`,
+        synopsis: 'An Afrofuturist epic of spirits in the quantum network.',
+        mainGenre: 'Afrofuturism',
+        status: 'ongoing',
+        chapters: [{ title: 'Chapter 1', content: 'In the digital ether...', hasAudioNarration: true }],
+      }),
+    });
+    if (resCreateStory.status !== 201) {
+      const err = await resCreateStory.text();
+      throw new Error(`Auto-tag story creation failed: ${err}`);
+    }
+    const createStoryJson = await resCreateStory.json();
+    autoTaggedStory = createStoryJson.data.story;
+    if (!autoTaggedStory.tags.includes('New Release') || !autoTaggedStory.tags.includes('Audio Narration')) {
+      throw new Error(`Expected auto-tags ['New Release', 'Audio Narration'], got: ${JSON.stringify(autoTaggedStory.tags)}`);
+    }
+
+    // B. Explore Page Tag Filter
+    const resTagQuery = await fetch(`${baseUrl}/stories?tags=New Release`);
+    const tagQueryJson = await resTagQuery.json();
+    const foundTagged = tagQueryJson.data.stories.some(s => s.tags?.includes('New Release'));
+    if (!foundTagged) {
+      throw new Error('Explore filter by tag "New Release" failed');
+    }
+
+    // C. Home Page Personalized Category for You
+    const resHomePersonalized = await fetch(`${baseUrl}/stories/feed/home`, {
+      headers: { Authorization: `Bearer ${readerToken}` },
+    });
+    const homeJson = await resHomePersonalized.json();
+    if (homeJson.data.categoryForYou?.categoryName !== 'Afrofuturism') {
+      throw new Error(`Expected categoryForYou Afrofuturism, got: ${homeJson.data.categoryForYou?.categoryName}`);
+    }
+    console.log(' [8/8] Automated New Release Tagging & Category Personalization verified.');
 
     console.log('\n ALL P-STACK REFACTORS & REGRESSION TESTS PASSED! \n');
   } finally {
@@ -225,6 +266,7 @@ async function runTestSuite() {
     if (readerUser) await User.deleteOne({ _id: readerUser._id });
     if (testStory) await Story.deleteOne({ _id: testStory._id });
     if (importedStoryId) await Story.deleteOne({ _id: importedStoryId });
+    if (autoTaggedStory) await Story.deleteOne({ _id: autoTaggedStory._id });
     await Comment.deleteMany({ author: { $in: [authorUser?._id, readerUser?._id] } });
     await Notification.deleteMany({ recipient: { $in: [authorUser?._id, readerUser?._id] } });
     await Discussion.deleteMany({ author: { $in: [authorUser?._id, readerUser?._id] } });

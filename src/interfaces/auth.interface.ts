@@ -5,6 +5,8 @@ export interface RegisterInput {
   email: string;
   phone?: string;
   password: string;
+  preferredCategories?: string[];
+  category?: string;
 }
 
 export interface LoginInput {

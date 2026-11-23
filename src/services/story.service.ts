@@ -57,8 +57,29 @@ export const createStory = async (
       Math.max(1, Math.ceil((ch.content?.trim().split(/\s+/).length || 0) / 200)),
   }));
 
+  const mainGenre =
+    data.mainGenre ||
+    user.preferredCategories?.[0] ||
+    user.traditionSpecialty ||
+    'Folklore & Mythology';
+
+  const existingTags = Array.isArray(data.tags) ? data.tags : [];
+  const tagSet = new Set<string>(existingTags.filter(Boolean));
+
+  // Automatically tag new stories as 'New Release'
+  tagSet.add('New Release');
+
+  // Automatically tag stories with audio narration if any chapter has narration
+  if (chapters.some((ch) => !!ch.hasAudioNarration)) {
+    tagSet.add('Audio Narration');
+  }
+
+  const tags = Array.from(tagSet);
+
   const story = await Story.create({
     ...data,
+    mainGenre,
+    tags,
     slug,
     coverImage: data.coverImage || defaultCover,
     author: user._id,
@@ -105,6 +126,19 @@ export const getStories = async (
 
   if (params.tradition) {
     query.tradition = new RegExp(`^${params.tradition}$`, 'i');
+  }
+
+  const tagFilter = params.tags || params.tag;
+  if (tagFilter && tagFilter !== 'all') {
+    const tagsArray = Array.isArray(tagFilter)
+      ? tagFilter
+      : tagFilter.split(',').map((t: string) => t.trim()).filter(Boolean);
+
+    if (tagsArray.length > 0) {
+      query.tags = {
+        $in: tagsArray.map((t: string) => new RegExp(`^${t}$`, 'i')),
+      };
+    }
   }
 
   if (params.audio === true || params.hasAudio === true) {
@@ -396,26 +430,79 @@ export const getTraditionsWithCounts = async (): Promise<any[]> => {
 /**
  * Retrieves aggregated feeds for the Home / Landing page.
  */
-export const getHomeFeed = async (): Promise<{
+export const getHomeFeed = async (
+  userId?: string
+): Promise<{
   featured: any[];
   recommended: any[];
   newReleases: any[];
+  categoryForYou?: {
+    categoryName: string;
+    stories: any[];
+  };
   recentlyUpdated: any[];
   topAuthors: any[];
 }> => {
   const publishedFilter = { status: { $in: ['ongoing', 'completed'] } };
 
-  const [featured, recommended, newReleases, recentlyUpdated, topAuthors] = await Promise.all([
+  // Determine user's preferred category or default
+  let preferredCategoryName = 'Folklore & Mythology';
+  if (userId) {
+    const user = await User.findById(userId).select('preferredCategories traditionSpecialty');
+    if (user?.preferredCategories && user.preferredCategories.length > 0) {
+      preferredCategoryName = user.preferredCategories[0]!;
+    } else if (user?.traditionSpecialty) {
+      preferredCategoryName = user.traditionSpecialty;
+    }
+  }
+
+  const categoryForYouQuery = {
+    ...publishedFilter,
+    $or: [
+      { mainGenre: new RegExp(`^${preferredCategoryName}$`, 'i') },
+      { subGenres: new RegExp(`^${preferredCategoryName}$`, 'i') },
+      { tags: new RegExp(`^${preferredCategoryName}$`, 'i') },
+    ],
+  };
+
+  const [
+    featured,
+    recommended,
+    taggedNewReleases,
+    recentlyUpdated,
+    topAuthors,
+    categoryForYouStories,
+  ] = await Promise.all([
     Story.find(publishedFilter).sort({ readsCount: -1, likesCount: -1 }).limit(10).lean(),
     Story.find(publishedFilter).sort({ likesCount: -1, readsCount: -1 }).limit(4).lean(),
-    Story.find(publishedFilter).sort({ createdAt: -1 }).limit(4).lean(),
+    // Primary query: stories tagged with 'New Release'
+    Story.find({
+      ...publishedFilter,
+      tags: { $in: ['New Release'] },
+    })
+      .sort({ publishedAt: -1, createdAt: -1 })
+      .limit(6)
+      .lean(),
     Story.find(publishedFilter).sort({ updatedAt: -1 }).limit(4).lean(),
     User.find()
       .select('name username penName avatarUrl traditionSpecialty followers followersCount')
       .sort({ followersCount: -1, createdAt: -1 })
       .limit(4)
       .lean(),
+    Story.find(categoryForYouQuery)
+      .sort({ likesCount: -1, readsCount: -1, createdAt: -1 })
+      .limit(6)
+      .lean(),
   ]);
+
+  // If fewer than 4 stories carried the 'New Release' tag, backfill with newest published
+  let newReleases = taggedNewReleases;
+  if (newReleases.length < 4) {
+    newReleases = await Story.find(publishedFilter)
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .lean();
+  }
 
   const formatStory = (s: any) => ({
     id: s._id.toString(),
@@ -427,6 +514,7 @@ export const getHomeFeed = async (): Promise<{
     tradition: s.tradition,
     genre: s.mainGenre,
     subGenres: s.subGenres,
+    tags: s.tags || [],
     authorName: s.authorName,
     authorPenName: s.authorPenName || s.authorName,
     authorAvatar: s.authorAvatar,
@@ -454,6 +542,10 @@ export const getHomeFeed = async (): Promise<{
     featured: featured.map(formatStory),
     recommended: recommended.map(formatStory),
     newReleases: newReleases.map(formatStory),
+    categoryForYou: {
+      categoryName: preferredCategoryName,
+      stories: categoryForYouStories.map(formatStory),
+    },
     recentlyUpdated: recentlyUpdated.map(formatStory),
     topAuthors: topAuthors.map(formatAuthor),
   };

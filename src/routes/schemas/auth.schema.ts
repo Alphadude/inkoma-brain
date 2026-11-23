@@ -12,6 +12,8 @@ export const registerSchema = Joi.object({
       'string.pattern.base':
         'Password must contain at least one uppercase letter, one lowercase letter, and one number',
     }),
+  preferredCategories: Joi.array().items(Joi.string().trim()).optional(),
+  category: Joi.string().trim().optional(),
 });
 
 export const loginSchema = Joi.object({

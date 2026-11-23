@@ -59,6 +59,8 @@ export const storyQuerySchema = Joi.object({
   mainGenre: Joi.string().trim().optional(),
   genre: Joi.string().trim().optional(),
   tradition: Joi.string().trim().optional(),
+  tags: Joi.alternatives().try(Joi.string().trim(), Joi.array().items(Joi.string().trim())).optional(),
+  tag: Joi.string().trim().optional(),
   audio: Joi.boolean().optional(),
   hasAudio: Joi.boolean().optional(),
   storyLanguage: Joi.string().trim().optional(),

@@ -505,6 +505,24 @@
                 "readTime"
               ]
             }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Filter by story tags (e.g. \"New Release\", \"Audio Narration\", \"Staff Pick\"). Comma-separated for multiple tags.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Filter by single tag",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -694,13 +712,18 @@
         "tags": [
           "Stories"
         ],
-        "summary": "Get curated home landing feed",
-        "description": "Returns aggregated featured, recommended, new releases, recently updated stories, and top authors for the home landing page.",
+        "summary": "Get curated home landing feed with personalized categories",
+        "description": "Returns aggregated featured, recommended, new releases (tagged \"New Release\"), personalized category shelf (\"categoryForYou\") based on registered user preferences, recently updated stories, and top authors.",
         "responses": {
           "200": {
             "description": "Home feed fetched successfully"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/stories/{storyId}/comments": {
@@ -2916,6 +2939,22 @@
             "minLength": 8,
             "description": "Must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number",
             "example": "StrongPass123!"
+          },
+          "preferredCategories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Categories or folklore genres of interest selected during registration (e.g. Folklore & Mythology, Afrofuturism)",
+            "example": [
+              "Afrofuturism",
+              "Folklore & Mythology"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "description": "Primary category alias selected during registration",
+            "example": "Afrofuturism"
           }
         }
       },

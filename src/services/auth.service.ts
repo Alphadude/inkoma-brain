@@ -41,9 +41,17 @@ export const register = async (data: RegisterInput): Promise<RegisterResult> => 
   const otp = crypto.randomInt(100000, 999999).toString();
   const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
+  const preferredCategories =
+    Array.isArray(data.preferredCategories) && data.preferredCategories.length > 0
+      ? data.preferredCategories
+      : data.category
+      ? [data.category]
+      : ['Folklore & Mythology'];
+
   const user = await User.create({
     ...data,
     email: data.email.toLowerCase(),
+    preferredCategories,
     isEmailVerified: false,
     emailVerificationOtp: hashedOtp,
     emailVerificationOtpExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes expiry

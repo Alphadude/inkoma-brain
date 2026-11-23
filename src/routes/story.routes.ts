@@ -23,12 +23,12 @@ router
   .post(protect, validate(createStorySchema), storyController.createStory);
 
 /**
- * @route   GET /api/v1/stories/feed/home      — Get curated home landing feed (Public)
+ * @route   GET /api/v1/stories/feed/home      — Get curated home landing feed (Public or Personalized with Token)
  * @route   GET /api/v1/stories/trending       — Get top 10 trending stories (Public)
  * @route   GET /api/v1/stories/highest-rated  — Get top 10 highest-rated stories (Public)
  * @route   GET /api/v1/stories/traditions     — Get traditions catalogue with counts (Public)
  */
-router.get('/feed/home', storyController.getHomeFeed);
+router.get('/feed/home', optionalAuth, storyController.getHomeFeed);
 router.get('/trending', storyController.getTrendingStories);
 router.get('/highest-rated', storyController.getHighestRatedStories);
 router.get('/traditions', storyController.getTraditions);
