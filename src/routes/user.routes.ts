@@ -16,9 +16,13 @@ import {
 const router = Router();
 
 /**
- * @route   GET  /api/v1/users/top-authors     — Get top authors of the week (Public)
+ * @route   GET  /api/v1/users/top-authors             — Get top authors of the week (Public)
+ * @route   GET  /api/v1/users/profile/:username       — Get public storyteller profile (Public)
+ * @route   GET  /api/v1/users/support/:userIdOrUsername — Get author support / tipping details (Public)
  */
 router.get('/top-authors', userController.getTopAuthors);
+router.get('/profile/:username', userController.getPublicProfile);
+router.get('/support/:userIdOrUsername', userController.getAuthorSupport);
 
 // The following routes require authentication
 router.use(protect);
@@ -107,5 +111,14 @@ router.delete('/library/progress/:storyId', userController.removeReadingProgress
 router.get('/quotes', userController.getQuotes);
 router.post('/quotes', validate(createQuoteSchema), userController.addQuote);
 router.delete('/quotes/:quoteId', userController.removeQuote);
+
+/**
+ * @route   POST   /api/v1/users/follow/:userId        — Follow a storyteller (Protected)
+ * @route   DELETE /api/v1/users/follow/:userId        — Unfollow a storyteller (Protected)
+ * @route   GET    /api/v1/users/follow/status/:userId — Check follow status (Protected)
+ */
+router.post('/follow/:userId', userController.followUser);
+router.delete('/follow/:userId', userController.unfollowUser);
+router.get('/follow/status/:userId', userController.getFollowStatus);
 
 export default router;

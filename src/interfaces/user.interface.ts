@@ -48,6 +48,23 @@ export interface ISavedQuote {
   savedAt: Date;
 }
 
+export interface IBadge {
+  id: string;
+  name: string;
+  description: string;
+  iconName?: string;
+  tier: string; // 'bronze' | 'silver' | 'gold' | 'elder'
+  unlockedAt?: Date | string;
+}
+
+export interface ISupportDetails {
+  isAcceptingSupport: boolean;
+  paystackLink?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolderName?: string;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -56,6 +73,8 @@ export interface IUser extends Document {
   avatarUrl?: string;
   penName?: string;
   bio?: string;
+  country?: string;
+  traditionSpecialty?: string;
   password: string;
   role: UserRole;
   isEmailVerified: boolean;
@@ -68,6 +87,12 @@ export interface IUser extends Document {
   notifications: INotificationSettings;
   bookmarks: Types.ObjectId[];
   favorites: Types.ObjectId[];
+  followers: Types.ObjectId[];
+  following: Types.ObjectId[];
+  followersCount: number;
+  followingCount: number;
+  badges: IBadge[];
+  supportDetails?: ISupportDetails;
   readingProgress: IReadingProgress[];
   savedQuotes: ISavedQuote[];
   createdAt: Date;

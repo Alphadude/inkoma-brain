@@ -7,6 +7,8 @@ import {
   INotificationSettings,
   IReadingProgress,
   ISavedQuote,
+  IBadge,
+  ISupportDetails,
 } from '../interfaces/user.interface';
 
 // ── Sub-schemas ───────────────────────────────────────────────────────────
@@ -173,6 +175,29 @@ const savedQuoteSchema = new Schema<ISavedQuote>(
   { timestamps: true }
 );
 
+const badgeSchema = new Schema<IBadge>(
+  {
+    id: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    description: { type: String, required: true, trim: true },
+    iconName: { type: String, default: 'Award' },
+    tier: { type: String, default: 'bronze' },
+    unlockedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
+const supportDetailsSchema = new Schema<ISupportDetails>(
+  {
+    isAcceptingSupport: { type: Boolean, default: true },
+    paystackLink: { type: String, trim: true },
+    bankName: { type: String, trim: true },
+    accountNumber: { type: String, trim: true },
+    accountHolderName: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
 // ── Main Schema ───────────────────────────────────────────────────────────
 const userSchema = new Schema<IUser>(
   {
@@ -217,6 +242,44 @@ const userSchema = new Schema<IUser>(
       type: String,
       trim: true,
       maxlength: [500, 'Bio cannot exceed 500 characters'],
+    },
+    country: {
+      type: String,
+      trim: true,
+      default: 'Pan-African',
+    },
+    traditionSpecialty: {
+      type: String,
+      trim: true,
+      default: 'Pan-African Folklore',
+    },
+    followers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    following: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+    followingCount: {
+      type: Number,
+      default: 0,
+    },
+    badges: {
+      type: [badgeSchema],
+      default: [],
+    },
+    supportDetails: {
+      type: supportDetailsSchema,
+      default: undefined,
     },
     password: {
       type: String,

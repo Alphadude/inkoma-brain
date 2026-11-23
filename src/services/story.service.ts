@@ -123,7 +123,15 @@ export const getStories = async (
     if (Types.ObjectId.isValid(params.author)) {
       query.author = params.author;
     } else {
-      query.authorName = new RegExp(params.author, 'i');
+      const authorUser = await User.findOne({ username: params.author.toLowerCase() });
+      if (authorUser) {
+        query.author = authorUser._id;
+      } else {
+        query.$or = [
+          { authorName: new RegExp(params.author, 'i') },
+          { authorPenName: new RegExp(params.author, 'i') },
+        ];
+      }
     }
   }
 

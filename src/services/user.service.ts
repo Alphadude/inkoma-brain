@@ -457,3 +457,229 @@ export const removeQuote = async (userId: string, quoteId: string): Promise<void
 
   await user.save();
 };
+
+/**
+ * Retrieves public profile by username or userId.
+ */
+export const getPublicProfile = async (
+  usernameOrId: string,
+  currentUserId?: string
+): Promise<any> => {
+  const isObjectId = Types.ObjectId.isValid(usernameOrId);
+  const query = isObjectId
+    ? { _id: usernameOrId }
+    : { username: usernameOrId.toLowerCase() };
+
+  let user = await User.findOne(query);
+  if (!user && !isObjectId) {
+    // Fallback: match by name or penName if no username set
+    user = await User.findOne({
+      $or: [
+        { name: new RegExp(`^${usernameOrId.replace(/_/g, ' ')}$`, 'i') },
+        { penName: new RegExp(`^${usernameOrId.replace(/_/g, ' ')}$`, 'i') },
+      ],
+    });
+  }
+
+  if (!user) {
+    throw new ApiError(404, 'Storyteller not found');
+  }
+
+  // Aggregate author writing statistics
+  const statsAgg = await Story.aggregate([
+    { $match: { author: user._id } },
+    {
+      $group: {
+        _id: null,
+        storiesPublished: {
+          $sum: { $cond: [{ $in: ['$status', ['ongoing', 'completed']] }, 1, 0] },
+        },
+        draftStories: {
+          $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] },
+        },
+        totalReads: { $sum: '$readsCount' },
+        totalLikes: { $sum: '$likesCount' },
+        totalComments: { $sum: '$commentsCount' },
+        totalChaptersPublished: { $sum: { $size: { $ifNull: ['$chapters', []] } } },
+      },
+    },
+  ]);
+
+  const stats = statsAgg[0] || {
+    storiesPublished: 0,
+    draftStories: 0,
+    totalReads: 0,
+    totalLikes: 0,
+    totalComments: 0,
+    totalChaptersPublished: 0,
+  };
+
+  const isFollowing = currentUserId
+    ? (user.followers || []).some((f) => f.toString() === currentUserId)
+    : false;
+
+  const defaultBadges = [
+    {
+      id: 'badge-initiate',
+      name: 'Storyteller Initiate',
+      description: 'Preserving African folklore & oral heritage',
+      iconName: 'Crown',
+      tier: 'bronze',
+      unlockedAt: user.createdAt,
+    },
+  ];
+
+  const supportDetails = user.supportDetails || (user.banking?.accountNumber ? {
+    isAcceptingSupport: true,
+    bankName: user.banking.bankName,
+    accountNumber: user.banking.accountNumber,
+    accountHolderName: user.banking.accountHolderName,
+  } : {
+    isAcceptingSupport: true,
+  });
+
+  const showReading = user.privacy?.publicReadingHistory || (currentUserId === user._id.toString());
+  const booksRead = (user.readingProgress || []).filter((p) => p.progressPercentage >= 100).length;
+  const chaptersRead = (user.readingProgress || []).reduce((sum, p) => sum + (p.lastChapterNumber || 1), 0);
+
+  return {
+    id: user._id.toString(),
+    username: user.username || user.name.toLowerCase().replace(/\s+/g, '_'),
+    displayName: user.name,
+    penName: user.penName || user.name,
+    bio: user.bio || 'Preserving ancestral lore through interactive storytelling.',
+    avatarUrl: user.avatarUrl || '',
+    country: user.country || 'Pan-African',
+    role: user.role || 'storyteller',
+    traditionSpecialty: user.traditionSpecialty || 'Pan-African Folklore',
+    createdAt: user.createdAt,
+    followersCount: user.followersCount || (user.followers || []).length,
+    followingCount: user.followingCount || (user.following || []).length,
+    isFollowing,
+    badges: (user.badges && user.badges.length > 0) ? user.badges : defaultBadges,
+    writingStats: stats,
+    readingStats: showReading
+      ? {
+          booksRead,
+          chaptersRead,
+          readingStreakDays: Math.min(30, (user.readingProgress || []).length * 3),
+          favoriteGenres: ['Folklore', 'Mythology'],
+          interests: ['African Myths', 'Oral Traditions'],
+        }
+      : undefined,
+    supportDetails,
+  };
+};
+
+/**
+ * Follow a storyteller.
+ */
+export const followUser = async (
+  currentUserId: string,
+  targetUserId: string
+): Promise<void> => {
+  if (currentUserId === targetUserId) {
+    throw new ApiError(400, 'You cannot follow yourself');
+  }
+
+  const target = await User.findById(targetUserId);
+  if (!target) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (target.privacy?.allowFollowers === false) {
+    throw new ApiError(403, 'This storyteller is not accepting new followers');
+  }
+
+  const alreadyFollowing = (target.followers || []).some(
+    (f) => f.toString() === currentUserId
+  );
+  if (alreadyFollowing) {
+    return;
+  }
+
+  await Promise.all([
+    User.findByIdAndUpdate(targetUserId, {
+      $addToSet: { followers: currentUserId },
+      $inc: { followersCount: 1 },
+    }),
+    User.findByIdAndUpdate(currentUserId, {
+      $addToSet: { following: targetUserId },
+      $inc: { followingCount: 1 },
+    }),
+  ]);
+};
+
+/**
+ * Unfollow a storyteller.
+ */
+export const unfollowUser = async (
+  currentUserId: string,
+  targetUserId: string
+): Promise<void> => {
+  const target = await User.findById(targetUserId);
+  if (!target) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  await Promise.all([
+    User.findByIdAndUpdate(targetUserId, {
+      $pull: { followers: currentUserId },
+      $inc: { followersCount: -1 },
+    }),
+    User.findByIdAndUpdate(currentUserId, {
+      $pull: { following: targetUserId },
+      $inc: { followingCount: -1 },
+    }),
+  ]);
+};
+
+/**
+ * Get follow status between current user and target user.
+ */
+export const getFollowStatus = async (
+  currentUserId: string,
+  targetUserId: string
+): Promise<{ isFollowing: boolean }> => {
+  const target = await User.findById(targetUserId);
+  if (!target) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const isFollowing = (target.followers || []).some(
+    (f) => f.toString() === currentUserId
+  );
+  return { isFollowing };
+};
+
+/**
+ * Get author support / tipping details.
+ */
+export const getAuthorSupport = async (usernameOrId: string): Promise<any> => {
+  const isObjectId = Types.ObjectId.isValid(usernameOrId);
+  const query = isObjectId
+    ? { _id: usernameOrId }
+    : { username: usernameOrId.toLowerCase() };
+
+  const user = await User.findOne(query);
+  if (!user) {
+    throw new ApiError(404, 'Storyteller not found');
+  }
+
+  const supportDetails = user.supportDetails || (user.banking?.accountNumber ? {
+    isAcceptingSupport: true,
+    bankName: user.banking.bankName,
+    accountNumber: user.banking.accountNumber,
+    accountHolderName: user.banking.accountHolderName,
+  } : {
+    isAcceptingSupport: false,
+  });
+
+  return {
+    authorId: user._id.toString(),
+    authorName: user.name,
+    penName: user.penName || user.name,
+    username: user.username,
+    supportDetails,
+  };
+};

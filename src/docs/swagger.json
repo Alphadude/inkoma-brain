@@ -1285,6 +1285,81 @@
           "401": { "description": "Unauthorized" }
         }
       }
+    },
+    "/users/profile/{username}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get public storyteller profile",
+        "description": "Returns full storyteller public profile with writingStats, readingStats, badges, followers, and follow status.",
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Profile fetched successfully" },
+          "404": { "description": "Storyteller not found" }
+        }
+      }
+    },
+    "/users/support/{userIdOrUsername}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get author support details",
+        "description": "Returns author verified payout details or tipping links.",
+        "parameters": [
+          { "name": "userIdOrUsername", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Support details fetched successfully" },
+          "404": { "description": "Storyteller not found" }
+        }
+      }
+    },
+    "/users/follow/{userId}": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Follow a storyteller",
+        "description": "Follows a storyteller and increments their followersCount.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Storyteller followed successfully" },
+          "400": { "description": "Cannot follow yourself" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Storyteller does not accept followers" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Unfollow a storyteller",
+        "description": "Unfollows a storyteller and decrements their followersCount.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Storyteller unfollowed successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/users/follow/status/{userId}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Check follow status",
+        "description": "Checks whether the authenticated user follows the target user.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Follow status returned" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
     }
   },
   "components": {

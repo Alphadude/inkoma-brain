@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import * as userService from '../services/user.service';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
@@ -225,4 +226,61 @@ export const addQuote = asyncHandler(async (req: Request, res: Response): Promis
 export const removeQuote = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   await userService.removeQuote(req.user!._id.toString(), req.params['quoteId']!);
   res.status(200).json(new ApiResponse(200, null, 'Saved quote removed successfully'));
+});
+
+/**
+ * GET /api/v1/users/profile/:username
+ * Public storyteller profile lookup.
+ */
+export const getPublicProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  let currentUserId: string | undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+      currentUserId = decoded?.id;
+    } catch {
+      // Soft ignore invalid/expired tokens for public profile
+    }
+  }
+
+  const profile = await userService.getPublicProfile(req.params['username']!, currentUserId);
+  res.status(200).json(new ApiResponse(200, { user: profile }, 'Profile fetched successfully'));
+});
+
+/**
+ * POST /api/v1/users/follow/:userId
+ * Follow a storyteller.
+ */
+export const followUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.followUser(req.user!._id.toString(), req.params['userId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Storyteller followed successfully'));
+});
+
+/**
+ * DELETE /api/v1/users/follow/:userId
+ * Unfollow a storyteller.
+ */
+export const unfollowUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  await userService.unfollowUser(req.user!._id.toString(), req.params['userId']!);
+  res.status(200).json(new ApiResponse(200, null, 'Storyteller unfollowed successfully'));
+});
+
+/**
+ * GET /api/v1/users/follow/status/:userId
+ * Check follow status between current user and target user.
+ */
+export const getFollowStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const status = await userService.getFollowStatus(req.user!._id.toString(), req.params['userId']!);
+  res.status(200).json(new ApiResponse(200, status, 'Follow status checked'));
+});
+
+/**
+ * GET /api/v1/users/support/:userIdOrUsername
+ * Public author support / tipping details.
+ */
+export const getAuthorSupport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const support = await userService.getAuthorSupport(req.params['userIdOrUsername']!);
+  res.status(200).json(new ApiResponse(200, support, 'Support details fetched successfully'));
 });
