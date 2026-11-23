@@ -55,7 +55,9 @@
   "paths": {
     "/health": {
       "get": {
-        "tags": ["Health"],
+        "tags": [
+          "Health"
+        ],
         "summary": "Check API health",
         "description": "Returns current server health status and ISO timestamp.",
         "servers": [
@@ -91,7 +93,9 @@
     },
     "/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Register a new user",
         "description": "Creates a new user account with hashed password and returns a signed JWT token.",
         "requestBody": {
@@ -150,7 +154,9 @@
     },
     "/auth/verify-email": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Verify email using OTP",
         "description": "Verifies the 6-digit confirmation code and activates user account.",
         "requestBody": {
@@ -159,7 +165,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "otp"],
+                "required": [
+                  "email",
+                  "otp"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -201,7 +210,9 @@
     },
     "/auth/resend-verification-otp": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Resend email confirmation OTP",
         "description": "Generates and sends a new confirmation OTP via Brevo.",
         "requestBody": {
@@ -210,7 +221,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email"],
+                "required": [
+                  "email"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -248,7 +261,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Log in to an existing account",
         "description": "Authenticates user credentials and returns a signed JWT token.",
         "requestBody": {
@@ -307,7 +322,9 @@
     },
     "/auth/forgot-password": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Request password reset OTP",
         "description": "Generates a 6-digit OTP and sends it via Brevo (Email/SMS).",
         "requestBody": {
@@ -357,7 +374,9 @@
     },
     "/auth/reset-password": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Reset password using OTP",
         "description": "Verifies the 6-digit OTP and updates the user's password.",
         "requestBody": {
@@ -366,7 +385,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["otp", "newPassword"],
+                "required": [
+                  "otp",
+                  "newPassword"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -417,57 +439,193 @@
     },
     "/stories": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "List stories (Feed & Discovery)",
         "description": "Retrieves published stories with filtering by genre, language, status, author, or search query.",
         "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 12 } },
-          { "name": "mainGenre", "in": "query", "schema": { "type": "string" } },
-          { "name": "storyLanguage", "in": "query", "schema": { "type": "string" } },
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["draft", "ongoing", "completed"] } },
-          { "name": "search", "in": "query", "schema": { "type": "string" } },
-          { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["newest", "popular", "readTime"] } }
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 12
+            }
+          },
+          {
+            "name": "mainGenre",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storyLanguage",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "ongoing",
+                "completed"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "popular",
+                "readTime"
+              ]
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Stories list retrieved successfully" }
+          "200": {
+            "description": "Stories list retrieved successfully"
+          }
         }
       },
       "post": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Create and publish a new story",
         "description": "Creates a new story in Inkoma Studio with metadata and chapters.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["title", "synopsis", "mainGenre"],
+                "required": [
+                  "title",
+                  "synopsis",
+                  "mainGenre"
+                ],
                 "properties": {
-                  "title": { "type": "string", "example": "Rain in the Metropolis" },
-                  "subtitle": { "type": "string", "example": "A neo-noir romantic mystery" },
-                  "synopsis": { "type": "string", "example": "Clara meets Julian under unexpected circumstances." },
-                  "mainGenre": { "type": "string", "example": "Romance" },
-                  "subGenres": { "type": "array", "items": { "type": "string" } },
-                  "storyLanguage": { "type": "string", "example": "English" },
-                  "targetAudience": { "type": "string", "example": "Young Adult (YA)" },
-                  "ageRating": { "type": "string", "example": "16+" },
-                  "tradition": { "type": "string", "example": "Pan-African" },
-                  "difficulty": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"], "default": "Intermediate" },
-                  "tags": { "type": "array", "items": { "type": "string" } },
-                  "status": { "type": "string", "enum": ["draft", "ongoing", "completed"], "default": "ongoing" },
+                  "title": {
+                    "type": "string",
+                    "example": "Rain in the Metropolis"
+                  },
+                  "subtitle": {
+                    "type": "string",
+                    "example": "A neo-noir romantic mystery"
+                  },
+                  "synopsis": {
+                    "type": "string",
+                    "example": "Clara meets Julian under unexpected circumstances."
+                  },
+                  "mainGenre": {
+                    "type": "string",
+                    "example": "Romance"
+                  },
+                  "subGenres": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "storyLanguage": {
+                    "type": "string",
+                    "example": "English"
+                  },
+                  "targetAudience": {
+                    "type": "string",
+                    "example": "Young Adult (YA)"
+                  },
+                  "ageRating": {
+                    "type": "string",
+                    "example": "16+"
+                  },
+                  "tradition": {
+                    "type": "string",
+                    "example": "Pan-African"
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "Beginner",
+                      "Intermediate",
+                      "Advanced"
+                    ],
+                    "default": "Intermediate"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "ongoing",
+                      "completed"
+                    ],
+                    "default": "ongoing"
+                  },
                   "chapters": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": ["title", "content"],
+                      "required": [
+                        "title",
+                        "content"
+                      ],
                       "properties": {
-                        "title": { "type": "string", "example": "Chapter 1: The Encounter" },
-                        "summary": { "type": "string" },
-                        "content": { "type": "string", "example": "The rain beat steadily against the windowpane..." },
-                        "status": { "type": "string", "enum": ["draft", "published"], "default": "draft" }
+                        "title": {
+                          "type": "string",
+                          "example": "Chapter 1: The Encounter"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string",
+                          "example": "The rain beat steadily against the windowpane..."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "draft",
+                            "published"
+                          ],
+                          "default": "draft"
+                        }
                       }
                     }
                   }
@@ -477,75 +635,146 @@
           }
         },
         "responses": {
-          "201": { "description": "Story created successfully" },
-          "401": { "description": "Unauthorized" },
-          "422": { "description": "Validation error" }
+          "201": {
+            "description": "Story created successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation error"
+          }
         }
       }
     },
     "/stories/trending": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get trending stories",
         "description": "Returns top 10 trending manuscripts ranked by reader engagement (reads and likes).",
         "responses": {
-          "200": { "description": "Trending stories fetched successfully" }
+          "200": {
+            "description": "Trending stories fetched successfully"
+          }
         }
       }
     },
     "/stories/highest-rated": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get highest-rated stories",
         "description": "Returns top 10 highest-rated stories of the week.",
         "responses": {
-          "200": { "description": "Highest rated stories fetched successfully" }
+          "200": {
+            "description": "Highest rated stories fetched successfully"
+          }
         }
       }
     },
     "/stories/traditions": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get folklore traditions and manuscript counts",
         "description": "Returns catalogue of folklore traditions with live story counts for the Explore carousel.",
         "responses": {
-          "200": { "description": "Traditions fetched successfully" }
+          "200": {
+            "description": "Traditions fetched successfully"
+          }
         }
       }
     },
     "/stories/feed/home": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get curated home landing feed",
         "description": "Returns aggregated featured, recommended, new releases, recently updated stories, and top authors for the home landing page.",
         "responses": {
-          "200": { "description": "Home feed fetched successfully" }
+          "200": {
+            "description": "Home feed fetched successfully"
+          }
         }
       }
     },
     "/stories/{storyId}/comments": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get comments for a story",
         "description": "Returns paginated comments (and threaded replies) for a story, optionally filtered by chapterNumber.",
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "chapterNumber", "in": "query", "required": false, "schema": { "type": "integer" } },
-          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chapterNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Comments fetched successfully" },
-          "404": { "description": "Story not found" }
+          "200": {
+            "description": "Comments fetched successfully"
+          },
+          "404": {
+            "description": "Story not found"
+          }
         }
       },
       "post": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Post a comment or reply",
         "description": "Posts a comment on a story or chapter, or replies to a parent comment.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -553,105 +782,220 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["content"],
+                "required": [
+                  "content"
+                ],
                 "properties": {
-                  "content": { "type": "string", "example": "This plot twist honoring the Yoruba river goddess was magnificent!" },
-                  "chapterNumber": { "type": "integer", "example": 2 },
-                  "nodeId": { "type": "string" },
-                  "parentCommentId": { "type": "string" }
+                  "content": {
+                    "type": "string",
+                    "example": "This plot twist honoring the Yoruba river goddess was magnificent!"
+                  },
+                  "chapterNumber": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "nodeId": {
+                    "type": "string"
+                  },
+                  "parentCommentId": {
+                    "type": "string"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Comment created successfully" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Story or parent comment not found" }
+          "201": {
+            "description": "Comment created successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Story or parent comment not found"
+          }
         }
       }
     },
     "/stories/comments/{commentId}/like": {
       "post": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Toggle like on a comment",
         "description": "Likes or unlikes a story comment.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Comment like updated" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Comment not found" }
+          "200": {
+            "description": "Comment like updated"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
         }
       }
     },
     "/stories/comments/{commentId}": {
       "delete": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Delete comment",
         "description": "Deletes own comment and decrements counts.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Comment deleted successfully" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden - Not comment author" },
-          "404": { "description": "Comment not found" }
+          "200": {
+            "description": "Comment deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Not comment author"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
         }
       }
     },
     "/stories/{idOrSlug}": {
       "get": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Get story by ID or Slug",
         "description": "Retrieves story details, author information, and chapters. Automatically increments readsCount.",
         "parameters": [
-          { "name": "idOrSlug", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "idOrSlug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story retrieved successfully" },
-          "404": { "description": "Story not found" }
+          "200": {
+            "description": "Story retrieved successfully"
+          },
+          "404": {
+            "description": "Story not found"
+          }
         }
       }
     },
     "/stories/{id}": {
       "put": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Update story or chapters",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story updated successfully" },
-          "403": { "description": "Forbidden - Not story owner" },
-          "404": { "description": "Story not found" }
+          "200": {
+            "description": "Story updated successfully"
+          },
+          "403": {
+            "description": "Forbidden - Not story owner"
+          },
+          "404": {
+            "description": "Story not found"
+          }
         }
       },
       "delete": {
-        "tags": ["Stories"],
+        "tags": [
+          "Stories"
+        ],
         "summary": "Delete story",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story deleted successfully" },
-          "403": { "description": "Forbidden" },
-          "404": { "description": "Story not found" }
+          "200": {
+            "description": "Story deleted successfully"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Story not found"
+          }
         }
       }
     },
     "/users/me": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get current user profile & settings",
         "description": "Returns full user profile including banking, privacy, and notification settings.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "User profile fetched successfully"
@@ -664,10 +1008,16 @@
     },
     "/users/me/profile": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update user profile",
         "description": "Update displayName/name, username, penName, bio, phone, or avatarUrl.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -675,12 +1025,30 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": { "type": "string", "example": "Kofi Mensah" },
-                  "username": { "type": "string", "example": "kofi_mensah" },
-                  "penName": { "type": "string", "example": "Anansi's Scribe" },
-                  "bio": { "type": "string", "example": "Author of African mythology and folklore." },
-                  "phone": { "type": "string", "example": "+233501234567" },
-                  "avatarUrl": { "type": "string", "example": "https://res.cloudinary.com/..." }
+                  "name": {
+                    "type": "string",
+                    "example": "Kofi Mensah"
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "kofi_mensah"
+                  },
+                  "penName": {
+                    "type": "string",
+                    "example": "Anansi's Scribe"
+                  },
+                  "bio": {
+                    "type": "string",
+                    "example": "Author of African mythology and folklore."
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "+233501234567"
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "example": "https://res.cloudinary.com/..."
+                  }
                 }
               }
             }
@@ -701,17 +1069,25 @@
     },
     "/users/me/avatar": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Upload avatar image",
         "description": "Upload a profile avatar image to Cloudinary and update the user record.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": ["avatar"],
+                "required": [
+                  "avatar"
+                ],
                 "properties": {
                   "avatar": {
                     "type": "string",
@@ -735,21 +1111,40 @@
     },
     "/users/me/banking": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update payout banking details",
         "description": "Update author bank account details for story payouts.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["bankName", "accountNumber", "accountHolderName"],
+                "required": [
+                  "bankName",
+                  "accountNumber",
+                  "accountHolderName"
+                ],
                 "properties": {
-                  "bankName": { "type": "string", "example": "Access Bank" },
-                  "accountNumber": { "type": "string", "example": "0123456789" },
-                  "accountHolderName": { "type": "string", "example": "Kofi Mensah" }
+                  "bankName": {
+                    "type": "string",
+                    "example": "Access Bank"
+                  },
+                  "accountNumber": {
+                    "type": "string",
+                    "example": "0123456789"
+                  },
+                  "accountHolderName": {
+                    "type": "string",
+                    "example": "Kofi Mensah"
+                  }
                 }
               }
             }
@@ -767,20 +1162,35 @@
     },
     "/users/me/password": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Change password",
         "description": "Securely update account password by validating current password.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["currentPassword", "newPassword"],
+                "required": [
+                  "currentPassword",
+                  "newPassword"
+                ],
                 "properties": {
-                  "currentPassword": { "type": "string", "example": "OldPass123!" },
-                  "newPassword": { "type": "string", "example": "NewPass456!" }
+                  "currentPassword": {
+                    "type": "string",
+                    "example": "OldPass123!"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "example": "NewPass456!"
+                  }
                 }
               }
             }
@@ -798,10 +1208,16 @@
     },
     "/users/me/privacy": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update privacy settings",
         "description": "Toggle public profile, reading history, follower permissions, and reading activity.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -809,10 +1225,22 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "publicProfile": { "type": "boolean", "default": true },
-                  "publicReadingHistory": { "type": "boolean", "default": false },
-                  "allowFollowers": { "type": "boolean", "default": true },
-                  "showReadingActivity": { "type": "boolean", "default": true }
+                  "publicProfile": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "publicReadingHistory": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "allowFollowers": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "showReadingActivity": {
+                    "type": "boolean",
+                    "default": true
+                  }
                 }
               }
             }
@@ -827,10 +1255,16 @@
     },
     "/users/me/notifications": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update notification preferences",
         "description": "Toggle email digests, chapter alerts, comment replies, and tips notifications.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -838,14 +1272,38 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "emailNewChapters": { "type": "boolean", "default": true },
-                  "emailComments": { "type": "boolean", "default": true },
-                  "emailPatronSupport": { "type": "boolean", "default": true },
-                  "weeklyFolkloreDigest": { "type": "boolean", "default": false },
-                  "newChapterAlerts": { "type": "boolean", "default": true },
-                  "commentReplies": { "type": "boolean", "default": true },
-                  "patronTips": { "type": "boolean", "default": true },
-                  "communityAnnouncements": { "type": "boolean", "default": true }
+                  "emailNewChapters": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "emailComments": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "emailPatronSupport": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "weeklyFolkloreDigest": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "newChapterAlerts": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "commentReplies": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "patronTips": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "communityAnnouncements": {
+                    "type": "boolean",
+                    "default": true
+                  }
                 }
               }
             }
@@ -860,137 +1318,274 @@
     },
     "/users/top-authors": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get top authors of the week",
         "description": "Returns top ranked authors aggregated by cumulative story reads and followers.",
         "responses": {
-          "200": { "description": "Top authors fetched successfully" }
+          "200": {
+            "description": "Top authors fetched successfully"
+          }
         }
       }
     },
     "/users/bookmarks": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get user bookmarks",
         "description": "Returns all bookmarked stories for the authenticated user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Bookmarks fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Bookmarks fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/bookmarks/{storyId}": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Bookmark a story",
         "description": "Adds a story to the user's bookmarks collection.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story bookmarked successfully" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Story not found" }
+          "200": {
+            "description": "Story bookmarked successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Story not found"
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Remove a bookmark",
         "description": "Removes a story from the user's bookmarks collection.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story unbookmarked successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Story unbookmarked successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/favorites": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get favorited stories",
         "description": "Returns all favorited stories for the authenticated user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Favorites fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Favorites fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/favorites/{storyId}": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Add story to favorites",
         "description": "Adds a story to the user's favorites collection and increments likesCount.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story added to favorites" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Story added to favorites"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Remove story from favorites",
         "description": "Removes a story from the user's favorites collection and decrements likesCount.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story removed from favorites" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Story removed from favorites"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/library": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get aggregate library overview",
         "description": "Returns all 4 library tabs (recently read, bookmarks, favorites, saved quotes) and live item counts.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Library overview fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Library overview fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Clear entire library",
         "description": "Removes all reading progress, bookmarks, favorites, and saved quotes for the user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Library cleared successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Library cleared successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/library/progress": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get reading progress list",
         "description": "Returns list of stories in progress with last chapter and percentage completion.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Reading progress fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Reading progress fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/library/progress/{storyId}": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Upsert reading progress",
         "description": "Updates or sets the current chapter and progress percentage for a story.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -998,346 +1593,803 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["lastChapterNumber", "progressPercentage"],
+                "required": [
+                  "lastChapterNumber",
+                  "progressPercentage"
+                ],
                 "properties": {
-                  "lastChapterNumber": { "type": "integer", "example": 2 },
-                  "progressPercentage": { "type": "number", "example": 66 },
-                  "lastReadNodeId": { "type": "string", "example": "node-1" }
+                  "lastChapterNumber": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "progressPercentage": {
+                    "type": "number",
+                    "example": 66
+                  },
+                  "lastReadNodeId": {
+                    "type": "string",
+                    "example": "node-1"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Reading progress updated successfully" },
-          "401": { "description": "Unauthorized" },
-          "422": { "description": "Validation error" }
+          "200": {
+            "description": "Reading progress updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation error"
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Remove from reading progress",
         "description": "Removes a story from the recently read list.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "storyId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Story removed from reading progress" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Story removed from reading progress"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/quotes": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get saved quotes",
         "description": "Returns all quotes saved by the user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Saved quotes fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Saved quotes fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       },
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Save a new quote",
         "description": "Saves a highlighted quote excerpt from a chapter.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["storyId", "storyTitle", "chapterNumber", "quoteText"],
+                "required": [
+                  "storyId",
+                  "storyTitle",
+                  "chapterNumber",
+                  "quoteText"
+                ],
                 "properties": {
-                  "storyId": { "type": "string" },
-                  "storyTitle": { "type": "string", "example": "Anansi and the Pot of Wisdom" },
-                  "authorPenName": { "type": "string", "example": "Anansi's Scribe" },
-                  "chapterNumber": { "type": "integer", "example": 2 },
-                  "chapterTitle": { "type": "string", "example": "The Great Gathering" },
-                  "quoteText": { "type": "string", "example": "Wisdom is like water; when spilled, no hand can gather every drop." }
+                  "storyId": {
+                    "type": "string"
+                  },
+                  "storyTitle": {
+                    "type": "string",
+                    "example": "Anansi and the Pot of Wisdom"
+                  },
+                  "authorPenName": {
+                    "type": "string",
+                    "example": "Anansi's Scribe"
+                  },
+                  "chapterNumber": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "chapterTitle": {
+                    "type": "string",
+                    "example": "The Great Gathering"
+                  },
+                  "quoteText": {
+                    "type": "string",
+                    "example": "Wisdom is like water; when spilled, no hand can gather every drop."
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Quote saved successfully" },
-          "401": { "description": "Unauthorized" },
-          "422": { "description": "Validation error" }
+          "201": {
+            "description": "Quote saved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation error"
+          }
         }
       }
     },
     "/users/quotes/{quoteId}": {
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete a saved quote",
         "description": "Deletes a saved quote by ID.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "quoteId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "quoteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Saved quote removed successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Saved quote removed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/users/profile/{username}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get public storyteller profile",
         "description": "Returns full storyteller public profile with writingStats, readingStats, badges, followers, and follow status.",
         "parameters": [
-          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Profile fetched successfully" },
-          "404": { "description": "Storyteller not found" }
+          "200": {
+            "description": "Profile fetched successfully"
+          },
+          "404": {
+            "description": "Storyteller not found"
+          }
         }
       }
     },
     "/users/profile/{username}/followers": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get storyteller followers",
         "description": "Returns paginated list of users following this storyteller, with follower counts and viewer's follow status.",
         "parameters": [
-          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } },
-          { "name": "search", "in": "query", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Followers fetched successfully" },
-          "404": { "description": "User not found" }
+          "200": {
+            "description": "Followers fetched successfully"
+          },
+          "404": {
+            "description": "User not found"
+          }
         }
       }
     },
     "/users/profile/{username}/following": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get users followed by storyteller",
         "description": "Returns paginated list of users that this storyteller is following, with follower counts and viewer's follow status.",
         "parameters": [
-          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "default": 20 } },
-          { "name": "search", "in": "query", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Following list fetched successfully" },
-          "404": { "description": "User not found" }
+          "200": {
+            "description": "Following list fetched successfully"
+          },
+          "404": {
+            "description": "User not found"
+          }
         }
       }
     },
     "/users/support/{userIdOrUsername}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get author support details",
         "description": "Returns author verified payout details or tipping links.",
         "parameters": [
-          { "name": "userIdOrUsername", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "userIdOrUsername",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Support details fetched successfully" },
-          "404": { "description": "Storyteller not found" }
+          "200": {
+            "description": "Support details fetched successfully"
+          },
+          "404": {
+            "description": "Storyteller not found"
+          }
         }
       }
     },
     "/users/follow/{userId}": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Follow a storyteller",
         "description": "Follows a storyteller and increments their followersCount.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Storyteller followed successfully" },
-          "400": { "description": "Cannot follow yourself" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Storyteller does not accept followers" },
-          "404": { "description": "User not found" }
+          "200": {
+            "description": "Storyteller followed successfully"
+          },
+          "400": {
+            "description": "Cannot follow yourself"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Storyteller does not accept followers"
+          },
+          "404": {
+            "description": "User not found"
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Unfollow a storyteller",
         "description": "Unfollows a storyteller and decrements their followersCount.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Storyteller unfollowed successfully" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "User not found" }
+          "200": {
+            "description": "Storyteller unfollowed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
         }
       }
     },
     "/users/follow/status/{userId}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Check follow status",
         "description": "Checks whether the authenticated user follows the target user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Follow status returned" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Follow status returned"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/notifications": {
       "get": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Get user notifications",
         "description": "Retrieves paginated notifications and unreadCount for authenticated user.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
-          { "name": "unreadOnly", "in": "query", "schema": { "type": "boolean", "default": false } }
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Notifications fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Notifications fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       },
       "delete": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Clear all notifications",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "All notifications cleared" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "All notifications cleared"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/notifications/read-all": {
       "patch": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Mark all notifications as read",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "All notifications marked as read" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "All notifications marked as read"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/notifications/{id}/read": {
       "patch": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Mark single notification as read",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Notification marked as read" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Notification not found" }
+          "200": {
+            "description": "Notification marked as read"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
         }
       }
     },
     "/notifications/{id}": {
       "delete": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Delete a notification",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Notification deleted successfully" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Notification not found" }
+          "200": {
+            "description": "Notification deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
         }
       }
     },
     "/community/discussions": {
       "get": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "List discussions in Lore Agora",
         "description": "Returns paginated list of discussions with search, tradition filter, and sorting.",
         "parameters": [
-          { "name": "tradition", "in": "query", "schema": { "type": "string" } },
-          { "name": "search", "in": "query", "schema": { "type": "string" } },
-          { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["recent", "popular"], "default": "recent" } },
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } }
+          {
+            "name": "tradition",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "recent",
+                "popular"
+              ],
+              "default": "recent"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Discussions fetched successfully" }
+          "200": {
+            "description": "Discussions fetched successfully"
+          }
         }
       },
       "post": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "Create a new discussion thread",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["title", "content"],
+                "required": [
+                  "title",
+                  "content"
+                ],
                 "properties": {
-                  "title": { "type": "string", "example": "The symbolism of the tortoise in Igbo & Yoruba folklore" },
-                  "content": { "type": "string", "example": "Why is the tortoise portrayed as a trickster figure across multiple West African nations?" },
-                  "tradition": { "type": "string", "example": "Yoruba" },
-                  "tags": { "type": "array", "items": { "type": "string" } }
+                  "title": {
+                    "type": "string",
+                    "example": "The symbolism of the tortoise in Igbo & Yoruba folklore"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Why is the tortoise portrayed as a trickster figure across multiple West African nations?"
+                  },
+                  "tradition": {
+                    "type": "string",
+                    "example": "Yoruba"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Discussion created successfully" },
-          "401": { "description": "Unauthorized" }
+          "201": {
+            "description": "Discussion created successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/community/discussions/{id}": {
       "get": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "Get discussion with replies",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Discussion fetched successfully" },
-          "404": { "description": "Discussion not found" }
+          "200": {
+            "description": "Discussion fetched successfully"
+          },
+          "404": {
+            "description": "Discussion not found"
+          }
         }
       },
       "delete": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "Delete discussion thread",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Discussion deleted successfully" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden - Not author" },
-          "404": { "description": "Discussion not found" }
+          "200": {
+            "description": "Discussion deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Not author"
+          },
+          "404": {
+            "description": "Discussion not found"
+          }
         }
       }
     },
     "/community/discussions/{id}/replies": {
       "post": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "Post a reply to a discussion",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -1345,49 +2397,85 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["content"],
+                "required": [
+                  "content"
+                ],
                 "properties": {
-                  "content": { "type": "string", "example": "In Ashanti folklore, Anansi the Spider plays an equivalent trickster role!" }
+                  "content": {
+                    "type": "string",
+                    "example": "In Ashanti folklore, Anansi the Spider plays an equivalent trickster role!"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Reply posted successfully" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Discussion not found" }
+          "201": {
+            "description": "Reply posted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Discussion not found"
+          }
         }
       }
     },
     "/community/discussions/{id}/like": {
       "post": {
-        "tags": ["Community"],
+        "tags": [
+          "Community"
+        ],
         "summary": "Toggle like on a discussion",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Discussion like updated" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Discussion not found" }
+          "200": {
+            "description": "Discussion like updated"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Discussion not found"
+          }
         }
       }
     },
     "/support/platform-info": {
       "get": {
-        "tags": ["Support"],
+        "tags": [
+          "Support"
+        ],
         "summary": "Get platform support info",
         "description": "Returns verified bank accounts, crypto wallets, and patronage tiers.",
         "responses": {
-          "200": { "description": "Platform info fetched successfully" }
+          "200": {
+            "description": "Platform info fetched successfully"
+          }
         }
       }
     },
     "/support/donations/initialize": {
       "post": {
-        "tags": ["Support"],
+        "tags": [
+          "Support"
+        ],
         "summary": "Initialize a donation or support payment",
         "requestBody": {
           "required": true,
@@ -1395,62 +2483,123 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["amount", "email"],
+                "required": [
+                  "amount",
+                  "email"
+                ],
                 "properties": {
-                  "amount": { "type": "number", "example": 5000 },
-                  "email": { "type": "string", "example": "patron@example.com" },
-                  "currency": { "type": "string", "example": "NGN" },
-                  "targetType": { "type": "string", "enum": ["platform", "author"], "default": "platform" },
-                  "authorId": { "type": "string" },
-                  "paymentMethod": { "type": "string", "enum": ["paystack", "bank_transfer", "crypto"] }
+                  "amount": {
+                    "type": "number",
+                    "example": 5000
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "patron@example.com"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "NGN"
+                  },
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "platform",
+                      "author"
+                    ],
+                    "default": "platform"
+                  },
+                  "authorId": {
+                    "type": "string"
+                  },
+                  "paymentMethod": {
+                    "type": "string",
+                    "enum": [
+                      "paystack",
+                      "bank_transfer",
+                      "crypto"
+                    ]
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Donation initialized successfully" },
-          "400": { "description": "Invalid input" }
+          "201": {
+            "description": "Donation initialized successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
         }
       }
     },
     "/support/donations/verify/{reference}": {
       "post": {
-        "tags": ["Support"],
+        "tags": [
+          "Support"
+        ],
         "summary": "Verify donation payment reference",
         "parameters": [
-          { "name": "reference", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "reference",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Donation verified successfully" },
-          "404": { "description": "Donation reference not found" }
+          "200": {
+            "description": "Donation verified successfully"
+          },
+          "404": {
+            "description": "Donation reference not found"
+          }
         }
       }
     },
     "/support/donations/my": {
       "get": {
-        "tags": ["Support"],
+        "tags": [
+          "Support"
+        ],
         "summary": "Get user donation history",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "User donations fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "User donations fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/help/faqs": {
       "get": {
-        "tags": ["Help"],
+        "tags": [
+          "Help"
+        ],
         "summary": "Get categorized FAQs",
         "description": "Returns categorized FAQs across General, Storyteller, Billing, and Technical topics.",
         "responses": {
-          "200": { "description": "FAQs fetched successfully" }
+          "200": {
+            "description": "FAQs fetched successfully"
+          }
         }
       }
     },
     "/help/tickets": {
       "post": {
-        "tags": ["Help"],
+        "tags": [
+          "Help"
+        ],
         "summary": "Submit a support ticket",
         "description": "Submits a support ticket or contact inquiry.",
         "requestBody": {
@@ -1459,33 +2608,192 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "email", "subject", "message"],
+                "required": [
+                  "name",
+                  "email",
+                  "subject",
+                  "message"
+                ],
                 "properties": {
-                  "name": { "type": "string", "example": "Kwame Mensah" },
-                  "email": { "type": "string", "example": "kwame@example.com" },
-                  "category": { "type": "string", "enum": ["General", "Storyteller Support", "Billing & Patronage", "Technical Bug", "Lore Preservation"] },
-                  "subject": { "type": "string", "example": "Question regarding chapter audio narration upload" },
-                  "message": { "type": "string", "example": "I would like to upload an MP3 audio narration for chapter 3 in Yoruba." },
-                  "priority": { "type": "string", "enum": ["low", "normal", "high"] }
+                  "name": {
+                    "type": "string",
+                    "example": "Kwame Mensah"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "kwame@example.com"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "General",
+                      "Storyteller Support",
+                      "Billing & Patronage",
+                      "Technical Bug",
+                      "Lore Preservation"
+                    ]
+                  },
+                  "subject": {
+                    "type": "string",
+                    "example": "Question regarding chapter audio narration upload"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "I would like to upload an MP3 audio narration for chapter 3 in Yoruba."
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "high"
+                    ]
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Ticket submitted successfully" },
-          "400": { "description": "Validation error" }
+          "201": {
+            "description": "Ticket submitted successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
         }
       }
     },
     "/help/tickets/my": {
       "get": {
-        "tags": ["Help"],
+        "tags": [
+          "Help"
+        ],
         "summary": "Get user submitted tickets",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "User tickets fetched successfully" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "User tickets fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/stories/parse-pdf": {
+      "post": {
+        "tags": [
+          "Stories"
+        ],
+        "summary": "Parse and segment PDF manuscript",
+        "description": "Upload a manuscript PDF to extract text and automatically segment into chapters with titles, summaries, and estimated reading time. Does not persist to the database (preview mode for Inkoma Studio).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Book manuscript PDF file (max 25MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "PDF parsed and segmented successfully"
+          },
+          "400": {
+            "description": "Invalid PDF file or scanned PDF without OCR text"
+          }
+        }
+      }
+    },
+    "/stories/import-pdf": {
+      "post": {
+        "tags": [
+          "Stories"
+        ],
+        "summary": "Import PDF manuscript into draft story",
+        "description": "Upload a manuscript PDF to extract chapters and automatically create a draft Story document with all extracted chapters populated.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Book manuscript PDF file (max 25MB)"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Optional title override (defaults to detected title from PDF)"
+                  },
+                  "synopsis": {
+                    "type": "string",
+                    "description": "Optional synopsis override"
+                  },
+                  "mainGenre": {
+                    "type": "string",
+                    "description": "Main genre of the story (default: Folklore & Mythology)"
+                  },
+                  "subGenres": {
+                    "type": "string",
+                    "description": "Comma-separated subgenres"
+                  },
+                  "tradition": {
+                    "type": "string",
+                    "description": "Folklore tradition (default: Pan-African)"
+                  },
+                  "targetAudience": {
+                    "type": "string",
+                    "description": "Target audience"
+                  },
+                  "ageRating": {
+                    "type": "string",
+                    "description": "Age rating"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "PDF manuscript imported into draft story successfully"
+          },
+          "400": {
+            "description": "Invalid PDF file or scanned PDF without OCR text"
+          }
         }
       }
     }
@@ -1542,7 +2850,9 @@
               "type": "string"
             },
             "nullable": true,
-            "example": ["\"email\" must be a valid email"]
+            "example": [
+              "\"email\" must be a valid email"
+            ]
           }
         }
       },
@@ -1564,7 +2874,10 @@
           },
           "role": {
             "type": "string",
-            "enum": ["user", "admin"],
+            "enum": [
+              "user",
+              "admin"
+            ],
             "example": "user"
           },
           "createdAt": {
@@ -1581,7 +2894,11 @@
       },
       "RegisterInput": {
         "type": "object",
-        "required": ["name", "email", "password"],
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
         "properties": {
           "name": {
             "type": "string",
@@ -1604,7 +2921,10 @@
       },
       "LoginInput": {
         "type": "object",
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
             "type": "string",

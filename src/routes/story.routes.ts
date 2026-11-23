@@ -3,7 +3,7 @@ import * as storyController from '../controllers/story.controller';
 import * as commentController from '../controllers/comment.controller';
 import { protect, optionalAuth } from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
-import upload from '../middlewares/upload.middleware';
+import upload, { uploadPdf } from '../middlewares/upload.middleware';
 import {
   createStorySchema,
   updateStorySchema,
@@ -42,6 +42,25 @@ router.post(
   upload.single('coverImage'),
   storyController.uploadCoverImage
 );
+
+/**
+ * PDF Manuscript Upload & Extraction Endpoints
+ * @route   POST /api/v1/stories/parse-pdf   — Extract & segment chapters from PDF (Protected)
+ * @route   POST /api/v1/stories/import-pdf  — Extract & create draft story from PDF (Protected)
+ */
+router.post(
+  '/parse-pdf',
+  protect,
+  uploadPdf.single('file'),
+  storyController.parsePdfManuscript
+);
+router.post(
+  '/import-pdf',
+  protect,
+  uploadPdf.single('file'),
+  storyController.importPdfManuscript
+);
+
 
 /**
  * Story Comments Endpoints

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as storyService from '../services/story.service';
+import * as pdfParserService from '../services/pdfParser.service';
 import asyncHandler from '../utils/asyncHandler';
 import ApiResponse from '../utils/ApiResponse';
 import ApiError from '../utils/ApiError';
@@ -112,3 +113,88 @@ export const getHomeFeed = asyncHandler(async (_req: Request, res: Response): Pr
   const feed = await storyService.getHomeFeed();
   res.status(200).json(new ApiResponse(200, feed, 'Home feed fetched successfully'));
 });
+
+/**
+ * POST /api/v1/stories/parse-pdf
+ * Extracts and segments chapters from an uploaded PDF manuscript without saving.
+ */
+export const parsePdfManuscript = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  if (!req.file) {
+    throw new ApiError(400, 'Please upload a PDF manuscript file under the "file" field');
+  }
+
+  const parsed = await pdfParserService.parsePdfManuscript(
+    req.file.buffer,
+    req.file.originalname
+  );
+
+  res.status(200).json(
+    new ApiResponse(200, parsed, 'PDF manuscript parsed and segmented successfully')
+  );
+});
+
+/**
+ * POST /api/v1/stories/import-pdf
+ * Parses an uploaded PDF manuscript and creates a draft Story in the database with chapters.
+ */
+export const importPdfManuscript = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  if (!req.file) {
+    throw new ApiError(400, 'Please upload a PDF manuscript file under the "file" field');
+  }
+
+  const parsed = await pdfParserService.parsePdfManuscript(
+    req.file.buffer,
+    req.file.originalname
+  );
+
+  const subGenres = Array.isArray(req.body.subGenres)
+    ? req.body.subGenres
+    : typeof req.body.subGenres === 'string'
+    ? req.body.subGenres.split(',').map((s: string) => s.trim()).filter(Boolean)
+    : [];
+
+  const storyPayload: any = {
+    title: req.body.title || parsed.detectedTitle || 'Untitled Story',
+    synopsis: req.body.synopsis || parsed.chapters[0]?.summary || 'Imported manuscript from PDF',
+    mainGenre: req.body.mainGenre || 'Folklore & Mythology',
+    subGenres,
+    tradition: req.body.tradition || 'Pan-African',
+    targetAudience: req.body.targetAudience || 'All Ages',
+    ageRating: req.body.ageRating || 'Everybody',
+    difficulty: req.body.difficulty || 'Intermediate',
+    status: req.body.status === 'ongoing' || req.body.status === 'completed' ? req.body.status : 'draft',
+    chapters: parsed.chapters.map((ch, idx) => ({
+      chapterNumber: ch.chapterNumber || idx + 1,
+      title: ch.title,
+      summary: ch.summary,
+      content: ch.content,
+      status: 'draft',
+      estimatedReadTime: ch.estimatedReadTime,
+    })),
+  };
+
+  if (req.body.coverImage) {
+    storyPayload.coverImage = req.body.coverImage;
+  }
+  if (req.body.authorPenName) {
+    storyPayload.authorPenName = req.body.authorPenName;
+  }
+
+  const story = await storyService.createStory(req.user!._id.toString(), storyPayload);
+
+  res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        story,
+        extractedSummary: {
+          totalChapters: parsed.totalChapters,
+          totalWordCount: parsed.totalWordCount,
+          estimatedTotalReadTime: parsed.estimatedTotalReadTime,
+        },
+      },
+      'PDF manuscript imported into draft story successfully'
+    )
+  );
+});
+

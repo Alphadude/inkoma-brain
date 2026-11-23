@@ -12,6 +12,45 @@ const Discussion = require('../dist/models/discussion.model').default;
 const Donation = require('../dist/models/donation.model').default;
 const SupportTicket = require('../dist/models/ticket.model').default;
 
+function createTestPdf() {
+  const contentStream =
+    'BT /F1 12 Tf 72 712 Td (Chapter 1: The Fire Keeper) Tj 0 -20 Td (Once upon a time in the kingdom of Oyo.) Tj 0 -40 Td (Chapter 2: The River Goddess) Tj 0 -20 Td (The sacred waters whispered ancient truths.) Tj ET';
+  const streamLength = Buffer.byteLength(contentStream);
+
+  return Buffer.from(`%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length ${streamLength} >>
+stream
+${contentStream}
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000244 00000 n 
+0000000300 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+377
+%%EOF`);
+}
+
 async function runTestSuite() {
   console.log('--- Inkoma Automated E2E Verification Suite ---');
   const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
@@ -32,7 +71,7 @@ async function runTestSuite() {
   const authorEmail = `test_griot_${timestamp}@inkoma.test`;
   const readerEmail = `test_seeker_${timestamp}@inkoma.test`;
 
-  let authorUser, readerUser, testStory;
+  let authorUser, readerUser, testStory, importedStoryId;
 
   try {
     authorUser = await User.create({
@@ -140,13 +179,52 @@ async function runTestSuite() {
     if (resTicket.status !== 201) {
       throw new Error(`Ticket creation failed: status ${resTicket.status}`);
     }
-    console.log(' [6/6] Help Center tickets verified.');
+    console.log(' [6/7] Help Center tickets verified.');
+
+    // 7. PDF Manuscript Extraction & Import
+    const pdfBuf = createTestPdf();
+    const parseForm = new FormData();
+    parseForm.append('file', new Blob([pdfBuf], { type: 'application/pdf' }), 'the-legends-of-oyo.pdf');
+    const resParse = await fetch(`${baseUrl}/stories/parse-pdf`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authorToken}` },
+      body: parseForm,
+    });
+    if (resParse.status !== 200) {
+      const errText = await resParse.text();
+      throw new Error(`Parse PDF failed: status ${resParse.status} - ${errText}`);
+    }
+    const parseJson = await resParse.json();
+    if (parseJson.data.totalChapters !== 2) {
+      throw new Error(`Parse PDF expected 2 chapters, got ${parseJson.data.totalChapters}`);
+    }
+
+    const importForm = new FormData();
+    importForm.append('file', new Blob([pdfBuf], { type: 'application/pdf' }), 'the-legends-of-oyo.pdf');
+    importForm.append('title', 'The Legends of Oyo');
+    importForm.append('mainGenre', 'Folklore & Mythology');
+    const resImport = await fetch(`${baseUrl}/stories/import-pdf`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authorToken}` },
+      body: importForm,
+    });
+    if (resImport.status !== 201) {
+      const errText = await resImport.text();
+      throw new Error(`Import PDF failed: status ${resImport.status} - ${errText}`);
+    }
+    const importJson = await resImport.json();
+    if (!importJson.data.story || importJson.data.story.chapters.length !== 2) {
+      throw new Error(`Import PDF expected 2 chapters in story, got ${importJson.data.story?.chapters?.length}`);
+    }
+    importedStoryId = importJson.data.story._id;
+    console.log(' [7/7] PDF Manuscript Parsing & Draft Story Import verified.');
 
     console.log('\n ALL P-STACK REFACTORS & REGRESSION TESTS PASSED! \n');
   } finally {
     if (authorUser) await User.deleteOne({ _id: authorUser._id });
     if (readerUser) await User.deleteOne({ _id: readerUser._id });
     if (testStory) await Story.deleteOne({ _id: testStory._id });
+    if (importedStoryId) await Story.deleteOne({ _id: importedStoryId });
     await Comment.deleteMany({ author: { $in: [authorUser?._id, readerUser?._id] } });
     await Notification.deleteMany({ recipient: { $in: [authorUser?._id, readerUser?._id] } });
     await Discussion.deleteMany({ author: { $in: [authorUser?._id, readerUser?._id] } });
